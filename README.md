@@ -47,5 +47,10 @@ time find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | parallel --eta -P20 
 time find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | parallel --eta -P20 nice ionice -c 3 mp3gain {}
 ```
 
-Next on the to-do list: Remove all folders containing music you do not like. Shorten directory names. Copy to an MP3 stick. Erase from the hard disk.
+Next on the to-do list: 
+- Remove all folders containing music you do not like.
+- Shorten directory names.
+- Copy to an MP3 stick.
+- Erase from the hard disk.
 
+Have fun and enjoy the ride :=)
