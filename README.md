@@ -7,6 +7,11 @@ wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O ~/.loca
 chmod a+rx ~/.local/bin/yt-dlp  
 yt-dlp --update-to nightly
 ```
+Use a cookie in yout home directory. There is a Firefox extention to save a cookie in a file: https://github.com/hrdl-github/cookies-txt.
+```
+~/cookies.txt
+```
+
 Open your web browser and navigate to YouTube. Use the search function to look for playlists and music genres. For example, search for 'salsa 2023 playlist'. Press the playlist button right below the search field. Go as much page down as you like. If you're happy, save the open tag as a text file. Scan the HTML file with the next command of the saved playlist to retrieve the tags.
 ```
 cat ~/Downloads/salsa\ 2023\ playlist\ -\ YouTube.html | grep "playlist?list=PL" | \
