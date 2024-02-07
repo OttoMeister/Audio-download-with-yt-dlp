@@ -45,7 +45,13 @@ Normalize, with audio file volume normalizer. Depends on your audio player to wo
 time find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | parallel --eta -P20 nice ionice -c 3 normalize-audio {}
 time find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | parallel --eta -P20 nice ionice -c 3 mp3gain {}
 ```
-
+Usefull utilitis:
+```
+tree -d  ~/Downloads/SalasPlaylist # schow tree
+find ~/Downloads/SalasPlaylist -type f -name "*.mp3"| wc -l # count files
+find ~/Downloads/SalasPlaylist -type f -name "*.mp3" -exec mp3info -p "%S\n" {} + | awk '{ total += $1 } END { printf "Total runtime: %d hours %d minutes\n", total / 3600, (total % 3600) / 60 }' # runtime
+du -sh ~/Downloads/SalasPlaylist # filesize together
+```
 Next on the to-do list: 
 - Remove all folders containing music you do not like.
 - Shorten directory names.
