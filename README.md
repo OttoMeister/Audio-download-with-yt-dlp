@@ -61,3 +61,5 @@ Next on the to-do list:
 - Erase from the hard disk.
 
 Have fun and enjoy the ride :=)
+
+There's still about 5% of content that my car stereo can't play; additional investigation is necessary. Despite trying mp3check, it reports that 100% of my files are faulty. Until now, I've simply resorted to pressing the skip/next button.
