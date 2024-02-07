@@ -28,7 +28,6 @@ time nice yt-dlp --print "https://www.youtube.com/watch?v=%(id)s" --flat-playlis
 ```
 Now it's time to massive download (this takes 15min):
 
-I have selected "--audio-quality 5". I have not seen any improvment with higer numbers.
 ```
 time nice yt-dlp --print "https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s.mp3" --flat-playlist PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PLUMJYOoO2JQ_DcCSmuFiKRTk6J5vJcrlH PLgFPSBWI2ATu3JE4tCZqKaaXhNBex-t7o PL8rVmOSQfvq8lLXTfu5UzQPilRwB_xzoN PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLgvKCwa4Uw1t8s8vfi5VuOisQJNsuoXkX PLxf7wRx2pn4t-TYq6tAKPnosiPRjShmAy | awk -F';' '{print "yt-dlp --ignore-errors -no-abort-on-error --no-check-certificate --cookies ~/cookies.txt --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --ungroup --eta -P20
 ```
@@ -44,7 +43,7 @@ Delete files and subdirectories that are more than 2 levels deep from ~/Download
 ```
 find ~/Downloads/SalasPlaylist -mindepth 2 -type d  -exec rm -rf {} \;
 ```
-Normalize, with audio file volume normalizer. Depends on your audio player to work. Maybe there is a better way.
+Normalize, with audio file volume normalizer. Depends on your audio player to work. 
 ```
 time find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | parallel --eta -P20 nice ionice -c 3 normalize-audio {}
 time find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | parallel --eta -P20 nice ionice -c 3 mp3gain {}
@@ -64,4 +63,9 @@ Next on the to-do list:
 
 Have fun and enjoy the ride :=)
 
-There's still about 5% of content that my car stereo can't play; additional investigation is necessary. Despite trying mp3check, it reports that 100% of my files are faulty. Until now, I've simply resorted to pressing the skip/next button.
+Open Issues or Improvements:
+- There is still around 5% of content that my car stereo cannot play; additional investigation is necessary. Despite using mp3check, it consistently reports that all of my files are faulty. So far, I've been resorting to manually skipping to the next track.
+- Improving audio quality: I've chosen "--audio-quality 5", but I haven't noticed any improvement with higher numbers.
+- Many MP3 files are not actually in the MP3 format internally; instead, they are in MPEG-2 format. How can I force them into the MP3 format?
+- MP3 normalization is achieved through the use of normalize-audio and mp3gain. These tools do not modify the audio content; rather, they store a correction value that is interpreted by the audio player. However, not all players utilize this data. Is it preferable to implement a hard-coded normalizer instead?
+
