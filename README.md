@@ -1,4 +1,4 @@
-## Efficient Parallel Download for Car Music MP3 Playlist
+# Efficient Parallel Download for Car Music MP3 Playlist
 
 Previously, it wasn't feasible to conduct parallel downloads with yt-dlp while retaining the playlist name as a directory name and preserving other metadata. However, I've discovered a method to achieve this by utilizing the trusty AWK. With this approach, download times are accelerated by approximately 20 times. On my laptop, I managed to download 1000 songs within 15 minutes using this method.
 
@@ -14,7 +14,7 @@ yt-dlp --update-to nightly
 
 Use a cookie in your home directory. There is a Firefox extention to save a cookie in a file: https://github.com/hrdl-github/cookies-txt. Save it as ~/cookies.txt
 
-# Get the playlist ID
+## Get the playlist ID
 
 Open your web browser and navigate to YouTube. Use the search function to look for playlists and music genres. For example, search for 'salsa 2023 playlist'. Press the playlist button right below the search field. Go as much page down as you like. If you're happy, save the open tag as a text file. Scan the HTML file with the next command of the saved playlist to retrieve the tags.
 ```
@@ -30,11 +30,12 @@ I selected here probably something like 1098 mp3 Songs. You can check it with th
 ```
 time nice yt-dlp --print "https://www.youtube.com/watch?v=%(id)s" --flat-playlist PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PLUMJYOoO2JQ_DcCSmuFiKRTk6J5vJcrlH PLgFPSBWI2ATu3JE4tCZqKaaXhNBex-t7o PL8rVmOSQfvq8lLXTfu5UzQPilRwB_xzoN PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLgvKCwa4Uw1t8s8vfi5VuOisQJNsuoXkX PLxf7wRx2pn4t-TYq6tAKPnosiPRjShmAy | wc -l
 ```
-#Now it's time to massive download:
+## Now it's time to massive download:
 
 ```
 time nice yt-dlp --print "https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s.mp3" --flat-playlist PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PLUMJYOoO2JQ_DcCSmuFiKRTk6J5vJcrlH PLgFPSBWI2ATu3JE4tCZqKaaXhNBex-t7o PL8rVmOSQfvq8lLXTfu5UzQPilRwB_xzoN PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLgvKCwa4Uw1t8s8vfi5VuOisQJNsuoXkX PLxf7wRx2pn4t-TYq6tAKPnosiPRjShmAy | awk -F';' '{print "yt-dlp --ignore-errors -no-abort-on-error --no-check-certificate --cookies ~/cookies.txt --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --ungroup --eta -P20
 ```
+## Automaic clean up:
 Clean up filenames with detox - the car stereo likes clean filenames:
 ```
 ionice -c 3 detox -vr ~/Downloads/SalasPlaylist
@@ -52,22 +53,20 @@ Normalize, with audio file volume normalizer. Depends on your audio player to wo
 time find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | parallel --eta -P20 nice ionice -c 3 normalize-audio {}
 time find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | parallel --eta -P20 nice ionice -c 3 mp3gain {}
 ```
-Usefull utilitis:
+## Usefull utilitis:
 ```
 tree -d  ~/Downloads/SalasPlaylist # schow tree
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3"| wc -l # count files
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3" -exec mp3info -p "%S\n" {} + | awk '{ total += $1 } END { printf "Total runtime: %d hours %d minutes\n", total / 3600, (total % 3600) / 60 }' # runtime
 du -sh ~/Downloads/SalasPlaylist # filesize together
 ```
-Next on the to-do list: 
+## Manual clean up: 
 - Remove all folders containing music you do not like.
 - Shorten directory names.
 - Copy to an MP3 stick.
 - Erase from the hard disk.
 
-Have fun and enjoy the ride :=)
-
-Open Issues or Improvements:
+## Open Issues or Improvements:
 - There is still around 5% of content that my car stereo cannot play; additional investigation is necessary. Despite using mp3check, it consistently reports that all of my files are faulty. So far, I've been resorting to manually skipping to the next track.
 - Improving audio quality: I've chosen "--audio-quality 5", but I haven't noticed any improvement with higher numbers.
 - Many MP3 files are not actually in the MP3 format internally; instead, they are in MPEG-2 format. How can I force them into the MP3 format?
