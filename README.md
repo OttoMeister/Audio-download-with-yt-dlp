@@ -24,6 +24,12 @@ You should get something like this:
 
 PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PLUMJYOoO2JQ_DcCSmuFiKRTk6J5vJcrlH PLgFPSBWI2ATu3JE4tCZqKaaXhNBex-t7o PL8rVmOSQfvq8lLXTfu5UzQPilRwB_xzoN PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLgvKCwa4Uw1t8s8vfi5VuOisQJNsuoXkX PLxf7wRx2pn4t-TYq6tAKPnosiPRjShmAy 
 
+A other way to colect the playdils ID ith the use of direct curl:
+
+```
+ curl https://www.youtube.com/results?search_query=salsa+2023+playlist | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' |  tr '\n' ' '
+```
+
 But you can also hand select the playlists and collect the tags to get a list like this. For a car playlist, maybe 1000 songs is sufficient. So do not collect too many playlists as it will produce too many songs.
 
 I selected here probably something like 1098 mp3 Songs. You can check it with the command below:
