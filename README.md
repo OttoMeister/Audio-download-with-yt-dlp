@@ -31,20 +31,16 @@ time for page in {1..10}; do echo "https://www.youtube.com/results?search_query=
 time for page in {1..10}; do echo "https://www.youtube.com/results?search_query=salsa+2023+playlist&page=$page"  ; done  | parallel -P20 --silent curl -s {} | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | awk  '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s.mp3\" --flat-playlist " $1}' | parallel -P20 --silent | awk -F';' '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta -P20
 ```
 ## Automaic clean up:
-Clean up filenames with detox - the car stereo likes clean filenames:
+Clean up filenames with detox - the car stereo likes clean filenames. <br>
+Delete too big and too small files. <br>
+Delete files and subdirectories that are more than 2 levels deep from ~/Downloads/SalasPlaylist. <br>
+(Check first with "echo" in front of "rm" )<br>
+Normalize, with audio file volume normalizer. Depends on your audio player to work. <br>
+
 ```
 ionice -c 3 detox -vr ~/Downloads/SalasPlaylist
-```
-Delete too big and too small files. Check first with "echo" in front of "rm" and maybe "| wc -l" at the end:
-```
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3" \( -size -3M -o -size +8M \) -exec rm {} \; 
-```
-Delete files and subdirectories that are more than 2 levels deep from ~/Downloads/SalasPlaylist. Check first with "echo" in front of "rm" and maybe "| wc -l" at the end:
-```
 find ~/Downloads/SalasPlaylist -mindepth 2 -type d  -exec rm -rf {} \;
-```
-Normalize, with audio file volume normalizer. Depends on your audio player to work. 
-```
 time find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | parallel --eta -P20 nice ionice -c 3 normalize-audio {}
 time find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | parallel --eta -P20 nice ionice -c 3 mp3gain {}
 ```
