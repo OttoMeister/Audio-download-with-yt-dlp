@@ -29,13 +29,10 @@ I selected here probably something like 4753 mp3 Songs. You can check it with th
 time for page in {1..10}; do echo "https://www.youtube.com/results?search_query=salsa+2023+playlist&page=$page"  ; done  | parallel -P20 --silent curl -s {} | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | awk '{for(i=1;i<=NF;i++) print "yt-dlp --no-warnings --print \"https://www.youtube.com/watch?v=%(id)s\" --flat-playlist " $i}' | nice ionice -c 3 parallel --silent  -P20 | wc -l
 ```
 
-
-
-
 ## Now it's time to massive download:
 
 ```
-time nice yt-dlp --print "https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s.mp3" --flat-playlist PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PLUMJYOoO2JQ_DcCSmuFiKRTk6J5vJcrlH PLgFPSBWI2ATu3JE4tCZqKaaXhNBex-t7o PL8rVmOSQfvq8lLXTfu5UzQPilRwB_xzoN PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLgvKCwa4Uw1t8s8vfi5VuOisQJNsuoXkX PLxf7wRx2pn4t-TYq6tAKPnosiPRjShmAy | awk -F';' '{print "yt-dlp --ignore-errors -no-abort-on-error --no-check-certificate --cookies ~/cookies.txt --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --ungroup --eta -P20
+time for page in {1..10}; do echo "https://www.youtube.com/results?search_query=salsa+2023+playlist&page=$page"  ; done  | parallel -P20 --silent curl -s {} | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | awk  '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s.mp3\" --flat-playlist " $1}' | parallel -P20 --silent | awk -F';' '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --ungroup --eta -P20
 ```
 ## Automaic clean up:
 Clean up filenames with detox - the car stereo likes clean filenames:
