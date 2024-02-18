@@ -1,9 +1,7 @@
 # Efficient Parallel Download for Car Music MP3 Playlist
 
 Previously, it wasn't feasible to conduct parallel downloads with yt-dlp while retaining the playlist name as a directory name and preserving other metadata. However, I've discovered a method to achieve this by utilizing the trusty AWK. With this approach, download times are accelerated by approximately 20 times. On my laptop, I managed to download 1000 songs within 15 minutes using this method.
-
 ## Tool Preparation
-
 Install all the necessary programs:
 ```
 sudo apt install parallel detox normalize-audio mp3gain mp3info mp3check
@@ -12,21 +10,16 @@ chmod a+rx ~/.local/bin/yt-dlp
 yt-dlp --update-to nightly
 ```
 Use a cookie in your home directory. There is a Firefox extention to save a cookie in a file: https://github.com/hrdl-github/cookies-txt. Save it as ~/cookies.txt
-
 ## Get the playlist ID
 A convenient way to gather Playlist IDs involves employing direct curl commands. In this instance, we employ the search term "salsa+2023," in 10 pages which yields 74 playlists.
 ```
 time for page in {1..10}; do echo "https://www.youtube.com/results?search_query=salsa+2023+playlist&page=$page"  ; done  | parallel -P20 --silent curl -s {} | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | wc -l
 ```
-You have the option to manually select playlists and collect tags to create a list resembling this one. A car playlist with about 1000 songs should suffice. Therefore, refrain from accumulating an excessive number of playlists, as it will lead to an overwhelming quantity of songs.
-
 For this demonstration, I've curated around 4753 MP3 songs. You can confirm this by executing the following command:
 ```
 time for page in {1..10}; do echo "https://www.youtube.com/results?search_query=salsa+2023+playlist&page=$page"  ; done  | parallel -P20 --silent curl -s {} | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | awk '{for(i=1;i<=NF;i++) print "yt-dlp --no-warnings --print \"https://www.youtube.com/watch?v=%(id)s\" --flat-playlist " $i}' | nice ionice -c 3 parallel --silent  -P20 | wc -l
 ```
-
 ## Now it's time to massive download:
-
 ```
 time for page in {1..10}; do echo "https://www.youtube.com/results?search_query=salsa+2023+playlist&page=$page"  ; done  | parallel --max-procs 20 --silent curl -s {} | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | awk  '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta --max-procs 20
 ```
@@ -36,7 +29,6 @@ Delete too big and too small files. <br>
 Delete files and subdirectories that are more than 2 levels deep from ~/Downloads/SalasPlaylist. <br>
 (Check first with "echo" in front of "rm" )<br>
 Normalize, with audio file volume normalizer. Depends on your audio player to work. <br>
-
 ```
 ionice -c 3 detox -vr ~/Downloads/SalasPlaylist
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3" \( -size -3M -o -size +8M \) -exec rm {} \; 
@@ -56,7 +48,6 @@ du -sh ~/Downloads/SalasPlaylist # filesize together
 - Shorten directory names.
 - Copy to an MP3 stick.
 - Erase from the hard disk.
-
 ## Open Issues or Improvements:
 - There is still around 5% of content that my car stereo cannot play; additional investigation is necessary. Despite using mp3check, it consistently reports that all of my files are faulty. So far, I've been resorting to manually skipping to the next track.
 - Improving audio quality: I've chosen "--audio-quality 5", but I haven't noticed any improvement with higher numbers.
