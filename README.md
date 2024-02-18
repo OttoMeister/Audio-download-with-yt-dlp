@@ -16,17 +16,17 @@ Use a cookie in your home directory. There is a Firefox extention to save a cook
 
 ## Get the playlist ID
 
-Lasy method to collect the Playdils ID is by utilizing direct curl commands. Here we use the serche term "salsa+2023"
+Lasy method to collect the Playdils ID is by utilizing direct curl commands. Here we use the serche term "salsa+2023". It gives us about 74 playlists.
 
 ```
-for page in {1..10}; do curl -s "https://www.youtube.com/results?search_query=salsa+2023+playlist&page=$page" | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | tr '\n' ' '; done
+time for page in {1..10}; do echo "https://www.youtube.com/results?search_query=salsa+2023+playlist&page=$page"  ; done  | parallel -P20 --silent curl -s {} | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | wc -l
 ```
 
 But you can also hand select the playlists and collect the tags to get a list like this. For a car playlist, maybe 1000 songs is sufficient. So do not collect too many playlists as it will produce too many songs.
 
-I selected here probably something like 1098 mp3 Songs. You can check it with the command below:
+I selected here probably something like 4753 mp3 Songs. You can check it with the command below:
 ```
-time for page in {1..10}; do curl -s "https://www.youtube.com/results?search_query=salsa+2023+playlist&page=$page" | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | tr '\n' ' '; done | awk '{for(i=1;i<=NF;i++) print "yt-dlp --no-warnings --print \"https://www.youtube.com/watch?v=%(id)s\" --flat-playlist " $i}' | nice ionice -c 3 parallel --silent  -P20 | wc -l 
+time for page in {1..10}; do echo "https://www.youtube.com/results?search_query=salsa+2023+playlist&page=$page"  ; done  | parallel -P20 --silent curl -s {} | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | awk '{for(i=1;i<=NF;i++) print "yt-dlp --no-warnings --print \"https://www.youtube.com/watch?v=%(id)s\" --flat-playlist " $i}' | nice ionice -c 3 parallel --silent  -P20 | wc -l
 ```
 
 
