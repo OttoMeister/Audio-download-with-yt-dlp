@@ -2,7 +2,7 @@
 
 Previously, it wasn't feasible to conduct parallel downloads with yt-dlp while retaining the playlist name as a directory name and preserving other metadata. However, I've discovered a method to achieve this by utilizing the trusty AWK. With this approach, download times are accelerated by approximately 20 times. On my laptop, I managed to download 1000 songs within 15 minutes using this method.
 
-#Tool Preparation
+## Tool Preparation
 
 Install all the necessary programs:
 ```
@@ -11,20 +11,18 @@ wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O ~/.loca
 chmod a+rx ~/.local/bin/yt-dlp  
 yt-dlp --update-to nightly
 ```
-
 Use a cookie in your home directory. There is a Firefox extention to save a cookie in a file: https://github.com/hrdl-github/cookies-txt. Save it as ~/cookies.txt
 
 ## Get the playlist ID
 
-Lasy method to collect the Playdils ID is by utilizing direct curl commands. Here we use the serche term "salsa+2023". It gives us about 74 playlists.
+A convenient way to gather Playlist IDs involves employing direct curl commands. In this instance, we employ the search term "salsa+2023," in 10 pages which yields 74 playlists.
 
 ```
 time for page in {1..10}; do echo "https://www.youtube.com/results?search_query=salsa+2023+playlist&page=$page"  ; done  | parallel -P20 --silent curl -s {} | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | wc -l
 ```
+However, you can manually choose playlists and gather tags to compile a list similar to this one. For a car playlist, around 1000 songs should be adequate. Therefore, avoid gathering an excessive number of playlists, as it will result in an overwhelming number of songs.
 
-But you can also hand select the playlists and collect the tags to get a list like this. For a car playlist, maybe 1000 songs is sufficient. So do not collect too many playlists as it will produce too many songs.
-
-I selected here probably something like 4753 mp3 Songs. You can check it with the command below:
+In this instance, I've chosen approximately 4753 MP3 songs. You can verify this by using the following command:
 ```
 time for page in {1..10}; do echo "https://www.youtube.com/results?search_query=salsa+2023+playlist&page=$page"  ; done  | parallel -P20 --silent curl -s {} | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | awk '{for(i=1;i<=NF;i++) print "yt-dlp --no-warnings --print \"https://www.youtube.com/watch?v=%(id)s\" --flat-playlist " $i}' | nice ionice -c 3 parallel --silent  -P20 | wc -l
 ```
