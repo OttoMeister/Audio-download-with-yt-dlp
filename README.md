@@ -28,7 +28,7 @@ time for page in {1..10}; do echo "https://www.youtube.com/results?search_query=
 ## Now it's time to massive download:
 
 ```
-time for page in {1..10}; do echo "https://www.youtube.com/results?search_query=salsa+2023+playlist&page=$page"  ; done  | parallel -P20 --silent curl -s {} | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | awk  '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s.mp3\" --flat-playlist " $1}' | parallel -P20 --silent | awk -F';' '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta -P20
+time for page in {1..10}; do echo "https://www.youtube.com/results?search_query=salsa+2023+playlist&page=$page"  ; done  | parallel --max-procs 20 --silent curl -s {} | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | awk  '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta --max-procs 20
 ```
 ## Automaic clean up:
 Clean up filenames with detox - the car stereo likes clean filenames. <br>
@@ -41,8 +41,8 @@ Normalize, with audio file volume normalizer. Depends on your audio player to wo
 ionice -c 3 detox -vr ~/Downloads/SalasPlaylist
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3" \( -size -3M -o -size +8M \) -exec rm {} \; 
 find ~/Downloads/SalasPlaylist -mindepth 2 -type d  -exec rm -rf {} \;
-time find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | parallel --eta -P20 nice ionice -c 3 normalize-audio {}
-time find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | parallel --eta -P20 nice ionice -c 3 mp3gain {}
+find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | nice ionice -c parallel --eta --max-procs 20 normalize-audio {}
+find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | nice ionice -c parallel --eta --max-procs 20 mp3gain {}
 ```
 ## Usefull utilitis:
 ```
