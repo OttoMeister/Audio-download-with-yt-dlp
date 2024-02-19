@@ -27,7 +27,7 @@ curl https://www.youtube.com/results?search_query=salsa+2023+playlist | tr '"' '
 ```
 But you can also hand select the playlists and collect the tags to get a list like this. For a car playlist, maybe 1000 songs is sufficient. So do not collect too many playlists as it will produce too many songs.
 
-I selected here 7 playlists with 503 mp3 Songs. You can confirm this by executing the following command:
+I selected here 7 playlists with 503 mp3 Songs wich will later be reduced to 475 files an will produce 35 hour Musik. You can confirm this by executing the following command:
 ```
 echo  PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLFxMfmFGz8rFggUvGY8G_m1JIPQLKxPcq PLWEEt0QgQFIn8neNfE8EzRi1hsNn8CovL | tr ' ' '\n' | awk '{for(i=1;i<=NF;i++) print "yt-dlp --no-warnings --print \"https://www.youtube.com/watch?v=%(id)s\" --flat-playlist " $i}' | nice ionice -c 3 parallel --silent  -P20 | wc -l
 ```
@@ -45,8 +45,8 @@ Normalize, with audio file volume normalizer. Depends on your audio player to wo
 ionice -c 3 detox -vr ~/Downloads/SalasPlaylist
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3" \( -size -3M -o -size +8M \) -exec rm {} \; 
 find ~/Downloads/SalasPlaylist -mindepth 2 -type d  -exec rm -rf {} \;
-find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | nice ionice -c parallel --eta --max-procs 20 normalize-audio {}
-find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | nice ionice -c parallel --eta --max-procs 20 mp3gain {}
+find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 normalize-audio {}
+find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 mp3gain {}
 ```
 ## Usefull utilitis:
 ```
