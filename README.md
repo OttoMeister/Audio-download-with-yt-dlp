@@ -1,5 +1,7 @@
 # Efficient Parallel Download for Car Music MP3 Playlist
 
+# do not use - work in progress
+
 Previously, it wasn't feasible to conduct parallel downloads with yt-dlp while retaining the playlist name as a directory name and preserving other metadata. However, I've discovered a method to achieve this by utilizing the trusty AWK. With this approach, download times are accelerated by approximately 20 times. On my laptop, I managed to download 1000 songs within 15 minutes using this method.
 ## Tool Preparation
 Install all the necessary programs:
