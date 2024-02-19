@@ -21,15 +21,13 @@ You should get something like this:
 
 PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLFxMfmFGz8rFggUvGY8G_m1JIPQLKxPcq PLWEEt0QgQFIn8neNfE8EzRi1hsNn8CovL
 
-Another method to collect the Playdils ID is by utilizing direct curl commands:
+Another method to collect the playlist ID is by utilizing direct curl commands:
 ```
 curl https://www.youtube.com/results?search_query=salsa+2023+playlist | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' |  tr '\n' ' '
 ```
 But you can also hand select the playlists and collect the tags to get a list like this. For a car playlist, maybe 1000 songs is sufficient. So do not collect too many playlists as it will produce too many songs.
 
-I selected here probably something like 7 playlists with 503 mp3 Songs. You can check it with the command below:
-
-For this demonstration, I've curated around 4753 MP3 songs. You can confirm this by executing the following command:
+I selected here 7 playlists with 503 mp3 Songs. You can confirm this by executing the following command:
 ```
 echo  PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLFxMfmFGz8rFggUvGY8G_m1JIPQLKxPcq PLWEEt0QgQFIn8neNfE8EzRi1hsNn8CovL | tr ' ' '\n' | awk '{for(i=1;i<=NF;i++) print "yt-dlp --no-warnings --print \"https://www.youtube.com/watch?v=%(id)s\" --flat-playlist " $i}' | nice ionice -c 3 parallel --silent  -P20 | wc -l
 ```
