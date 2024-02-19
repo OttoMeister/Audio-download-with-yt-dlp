@@ -46,7 +46,7 @@ find ~/Downloads/SalasPlaylist -mindepth 2 -type d  -exec rm -rf {} \;
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 normalize-audio {}
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 mp3gain {}
 ```
-## Usefull utilitis:
+## Usefull information tools:
 ```
 tree -d  ~/Downloads/SalasPlaylist # schow tree
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3"| wc -l # count files
@@ -58,6 +58,7 @@ du -sh ~/Downloads/SalasPlaylist # filesize together
 - Shorten directory names.
 - Copy to an MP3 stick.
 - Erase from the hard disk.
+  
 ## Open Issues or Improvements:
 - There is still around 5% of content that my car stereo cannot play; additional investigation is necessary. Despite using mp3check, it consistently reports that all of my files are faulty. So far, I've been resorting to manually skipping to the next track.
 - Improving audio quality: I've chosen "--audio-quality 5", but I haven't noticed any improvement with lower numbers.
