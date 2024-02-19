@@ -1,6 +1,7 @@
 # Efficient Parallel Download for Car Music MP3 Playlist
 
 Previously, it wasn't feasible to conduct parallel downloads with yt-dlp while retaining the playlist name as a directory name and preserving other metadata. However, I've discovered a method to achieve this by utilizing the trusty AWK. With this approach, download times are accelerated by approximately 20 times. On my laptop, I managed to download 1000 songs within 15 minutes using this method.
+
 ## Tool Preparation
 Install all the necessary programs:
 ```
@@ -9,7 +10,6 @@ wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O ~/.loca
 chmod a+rx ~/.local/bin/yt-dlp 
 yt-dlp --update-to nightly
 ```
-
 ## Get the playlist ID
 Open your web browser and navigate to YouTube. Use the search function to look for playlists and music genres. For example, search for 'salsa 2023 playlist'. Press the playlist button right below the search field. Go as much page down as you like. If you're happy, save the open tag as a text file. Scan the HTML file with the next command of the saved playlist to retrieve the tags.
 ```
@@ -33,11 +33,10 @@ echo PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 PLJzW
 ```
 time echo PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLFxMfmFGz8rFggUvGY8G_m1JIPQLKxPcq PLWEEt0QgQFIn8neNfE8EzRi1hsNn8CovL | tr ' ' '\n' | awk '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)#s;%(title)#s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta --max-procs 20
 ```
-Or maybe yo feel lucky and want to go 100% automatic:
+Perhaps you're feeling fortunate and inclined towards full automation, a 100% automatic approach:
 ```
 curl https://www.youtube.com/results?search_query=salsa+2023+playlist | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | awk '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)#s;%(title)#s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta --max-procs 20
 ```
-
 ## Automaic clean up:
 Clean up filenames with detox - the car stereo likes clean filenames. <br>
 Delete too big and too small files. <br>
@@ -69,4 +68,3 @@ du -sh ~/Downloads/SalasPlaylist # filesize together
 - Improving audio quality: I've chosen "--audio-quality 5", but I haven't noticed any improvement with lower numbers. Files getting biger, but not better.
 - Many MP3 files are not actually in the MP3 format internally; instead, they are in MPEG-2 format. How can I force them into the MP3 format?
 - MP3 normalization is achieved through the use of normalize-audio and mp3gain. These tools do not modify the audio content; rather, they store a correction value that is interpreted by the audio player. However, not all players utilize this data. Is it preferable to implement a hard-coded normalizer instead?
-
