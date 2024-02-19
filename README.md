@@ -53,7 +53,7 @@ find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel
 ## Usefull information tools:
 ```
 tree -d ~/Downloads/SalasPlaylist # schow tree
-find ~/Downloads/SalasPlaylist -type f -name "*.mp3"| wc -l # count files
+find ~/Downloads/SalasPlaylist -type f -name "*.mp3"| wc -l | tr '\n' ' ' && echo mp3 files
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3" -exec mp3info -p "%S\n" {} + | awk '{ total += $1 } END { printf "Total runtime: %d hours %d minutes\n", total / 3600, (total % 3600) / 60 }' # runtime
 du -sh ~/Downloads/SalasPlaylist # filesize together
 ```
