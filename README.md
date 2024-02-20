@@ -51,7 +51,6 @@ time yt-dlp --flat-playlist --simulate --print id -v "https://www.youtube.com/re
 - Delete files and subdirectories beyond a depth of 2 levels.
 - Exclude non-MP3 files from the directory.
 - Eradicate directories containing less than 10 files.
-- Remove empty directories.
 ```shell
 ionice -c 3 detox -vr ~/Downloads/CarPlaylist
 find ~/Downloads/CarPlaylist -type f -exec sh -c "echo \"{}\" | grep -qP '[^[:ascii:]]'" \; -exec rm {} \;
@@ -61,7 +60,6 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" \( -size -3M -o -size +8M \) 
 find ~/Downloads/CarPlaylist -mindepth 2 -type d -exec rm -rf {} \;
 find ~/Downloads/CarPlaylist -type f ! -name "*.mp3" -exec rm {} \;
 find ~/Downloads/CarPlaylist -mindepth 1 -type d -exec sh -c 'if [ $(find "$0" -type f | wc -l) -lt 10 ]; then rm -r "$0"; fi' {} \;
-find ~/Downloads/CarPlaylist -type d -empty -delete
 ```
 ## Normalize audio file volumes
 (relying on the audio player for functionality)
