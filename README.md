@@ -59,8 +59,8 @@ Normalize, with audio file volume normalizer. Depends on your audio player to wo
 ionice -c 3 convmv --notest -r -f utf-8 -t utf-8 --nfc ~/Downloads/SalasPlaylist/*
 ionice -c 3 detox -vr ~/Downloads/SalasPlaylist
 find ~/Downloads/SalasPlaylist -type f -exec sh -c "echo \"{}\" | grep -qP '[^[:ascii:]]'" \; -exec rm {} \;
-find ~/Downloads/SalasPlaylist/ -type f -regextype posix-egrep -regex ".*/[^/]{1,10}$" -delete
-find ~/Downloads/SalasPlaylist/ -type f -regextype posix-egrep -regex ".*/[^/]{100}[^/]+$" -delete
+find ~/Downloads/SalasPlaylist -type f -regextype posix-egrep -regex ".*/[^/]{1,10}$" -delete
+find ~/Downloads/SalasPlaylist -type f -regextype posix-egrep -regex ".*/[^/]{100}[^/]+$" -delete
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3" \( -size -3M -o -size +8M \) -exec rm {} \;
 find ~/Downloads/SalasPlaylist -mindepth 2 -type d -exec rm -rf {} \;
 find ~/Downloads/SalasPlaylist -type f ! -name "*.mp3" -exec rm {} \;
