@@ -47,7 +47,7 @@ Clean up filenames with detox - the car stereo likes clean filenames. <br>
 Delete too big and too small files. <br>
 Delete files and subdirectories that are more than 2 levels deep. <br>
 Delete every file that is not a mp3 file. <br>
-(Check first with "echo" in front of "rm") <br>
+	`#RRGGBB`(Check first with "echo" in front of "rm") <br>
 Normalize, with audio file volume normalizer. Depends on your audio player to work. <br>
 ```bash
 ionice -c 3 detox -vr ~/Downloads/SalasPlaylist
