@@ -46,12 +46,14 @@ time yt-dlp --flat-playlist --simulate --print id -v "https://www.youtube.com/re
 Clean up filenames with detox - the car stereo likes clean filenames. <br>
 Delete too big and too small files. <br>
 Delete files and subdirectories that are more than 2 levels deep. <br>
-(Check first with "echo" in front of "rm" )<br>
+Delete every file that is not a mp3 file. <br>
+(Check first with "echo" in front of "rm") <br>
 Normalize, with audio file volume normalizer. Depends on your audio player to work. <br>
 ```
 ionice -c 3 detox -vr ~/Downloads/SalasPlaylist
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3" \( -size -3M -o -size +8M \) -exec rm {} \; 
 find ~/Downloads/SalasPlaylist -mindepth 2 -type d -exec rm -rf {} \;
+find ~/Downloads/SalasPlaylist -type f ! -name "*.mp3" -exec rm {} \;
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 normalize-audio {}
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 mp3gain {}
 ```
