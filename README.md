@@ -42,7 +42,7 @@ This method results in extensive downloads, comprising 118 playlists containing 
 ```
 time yt-dlp --flat-playlist --simulate --print id -v "https://www.youtube.com/results?search_query=salsa+2023+playlist" | awk -F= '{if(length($1) == 34) print $1}' | awk '!seen[$0]++' | awk '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)#s;%(title)#s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta --max-procs 20
 ```
-## Automaic clean up:
+## Automatic clean up:
 Clean up filenames with detox - the car stereo likes clean filenames. <br>
 Delete too big and too small files. <br>
 Delete files and subdirectories that are more than 2 levels deep. <br>
