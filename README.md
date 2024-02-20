@@ -30,51 +30,53 @@ However, you can alternatively curate playlists manually and gather tags to comp
 
 ## Download your manual precesed list:
 ```shell
-time echo PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLFxMfmFGz8rFggUvGY8G_m1JIPQLKxPcq PLWEEt0QgQFIn8neNfE8EzRi1hsNn8CovL | tr ' ' '\n' | awk '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)#s;%(title)#s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta --max-procs 20
+time echo PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLFxMfmFGz8rFggUvGY8G_m1JIPQLKxPcq PLWEEt0QgQFIn8neNfE8EzRi1hsNn8CovL | tr ' ' '\n' | awk '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)#s;%(title)#s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/CarPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta --max-procs 20
 ```
 ## 100% automatic download:
 
 The initial approach is the most appealing. I've created 7 playlists containing 503 MP3 songs, which will then be condensed to 475 files, totaling 35 hours of music playback. These files will consume 2.3 gigabytes of storage space. The anticipated download duration is approximately 9 minutes.
 ```shell
-time curl https://www.youtube.com/results?search_query=salsa+2023+playlist | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | awk '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)#s;%(title)#s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta --max-procs 20
+time curl https://www.youtube.com/results?search_query=salsa+2023+playlist | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | awk '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)#s;%(title)#s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/CarPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta --max-procs 20
 ```
 Implementing this approach leads to extensive downloads, encompassing 118 playlists containing 19,520 MP3 files. This procedure will require a considerable amount of time and occupy a substantial portion of disk space. The download process lasted 10 hours, resulting in 14,813 MP3 files totaling 70 gigabytes after cleaning. 1029 hours of music!
 ```shell
-time yt-dlp --flat-playlist --simulate --print id -v "https://www.youtube.com/results?search_query=salsa+2023+playlist" | awk -F= '{if(length($1) == 34) print $1}' | awk '!seen[$0]++' | awk '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)#s;%(title)#s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta --max-procs 20
+time yt-dlp --flat-playlist --simulate --print id -v "https://www.youtube.com/results?search_query=salsa+2023+playlist" | awk -F= '{if(length($1) == 34) print $1}' | awk '!seen[$0]++' | awk '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)#s;%(title)#s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/CarPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta --max-procs 20
 ```
 ## Automatic clean up:
-Clean up filenames with convmv - the car stereo likes clean filenames. <br>
-Clean up filenames with detox - the car stereo likes clean filenames. <br>
-Delete filenames with characters outside the ASCII range. <br>
-Delete too big and too small files. <br>
-Deletes file with filename to short. <br>
-Deletes file with filename to long. <br>
-Delete files and subdirectories that are more than 2 levels deep. <br>
-Delete every file that is not a mp3 file. <br>
-Delete directories containing fewer than 10 files. <br>
-Delete empty directories.  <br>
-(Check first with "echo" in front of "rm") <br>
-Normalize, with audio file volume normalizer. Depends on your audio player to work. <br>
+Utilize convmv to standardize filenames to the car stereo's preferences.
+Use detox to further clean filenames for optimal compatibility.
+Remove filenames containing characters beyond the ASCII range.
+Eliminate files that are either excessively large or too small.
+Delete files with filenames that are too short.
+Remove files with filenames that exceed a certain length.
+Delete files and subdirectories beyond a depth of 2 levels.
+Exclude non-MP3 files from the directory.
+Eradicate directories containing less than 10 files.
+Remove empty directories.
 ```shell
-ionice -c 3 convmv --notest -r -f utf-8 -t utf-8 --nfc ~/Downloads/SalasPlaylist/*
-ionice -c 3 detox -vr ~/Downloads/SalasPlaylist
-find ~/Downloads/SalasPlaylist -type f -exec sh -c "echo \"{}\" | grep -qP '[^[:ascii:]]'" \; -exec rm {} \;
-find ~/Downloads/SalasPlaylist -type f -regextype posix-egrep -regex ".*/[^/]{1,10}$" -delete
-find ~/Downloads/SalasPlaylist -type f -regextype posix-egrep -regex ".*/[^/]{100}[^/]+$" -delete
-find ~/Downloads/SalasPlaylist -type f -name "*.mp3" \( -size -3M -o -size +8M \) -exec rm {} \;
-find ~/Downloads/SalasPlaylist -mindepth 2 -type d -exec rm -rf {} \;
-find ~/Downloads/SalasPlaylist -type f ! -name "*.mp3" -exec rm {} \;
-find ~/Downloads/SalasPlaylist -mindepth 1 -type d -exec sh -c 'if [ $(find "$0" -type f | wc -l) -lt 10 ]; then rm -r "$0"; fi' {} \;
-find ~/Downloads/SalasPlaylist -type d -empty -delete
-find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 normalize-audio {}
-find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 mp3gain {}
+ionice -c 3 convmv --notest -r -f utf-8 -t utf-8 --nfc ~/Downloads/CarPlaylist/*
+ionice -c 3 detox -vr ~/Downloads/CarPlaylist
+find ~/Downloads/CarPlaylist -type f -exec sh -c "echo \"{}\" | grep -qP '[^[:ascii:]]'" \; -exec rm {} \;
+find ~/Downloads/CarPlaylist -type f -regextype posix-egrep -regex ".*/[^/]{1,10}$" -delete
+find ~/Downloads/CarPlaylist -type f -regextype posix-egrep -regex ".*/[^/]{100}[^/]+$" -delete
+find ~/Downloads/CarPlaylist -type f -name "*.mp3" \( -size -3M -o -size +8M \) -exec rm {} \;
+find ~/Downloads/CarPlaylist -mindepth 2 -type d -exec rm -rf {} \;
+find ~/Downloads/CarPlaylist -type f ! -name "*.mp3" -exec rm {} \;
+find ~/Downloads/CarPlaylist -mindepth 1 -type d -exec sh -c 'if [ $(find "$0" -type f | wc -l) -lt 10 ]; then rm -r "$0"; fi' {} \;
+find ~/Downloads/CarPlaylist -type d -empty -delete
+```
+## Normalize audio file volumes
+(relying on the audio player for functionality)
+```shell
+find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 normalize-audio {}
+find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 mp3gain {}
 ```
 ## Usefull information tools:
 ```shell
-tree -d ~/Downloads/SalasPlaylist # schow tree
-find ~/Downloads/SalasPlaylist -type f -name "*.mp3"| wc -l | tr '\n' ' ' && echo mp3 files
-find ~/Downloads/SalasPlaylist -type f -name "*.mp3" -exec mp3info -p "%S\n" {} + | awk '{ total += $1 } END { printf "Total runtime: %d hours %d minutes\n", total / 3600, (total % 3600) / 60 }' # runtime
-du -sh ~/Downloads/SalasPlaylist # filesize together
+tree -d ~/Downloads/CarPlaylist # schow tree
+find ~/Downloads/CarPlaylist -type f -name "*.mp3"| wc -l | tr '\n' ' ' && echo mp3 files
+find ~/Downloads/CarPlaylist -type f -name "*.mp3" -exec mp3info -p "%S\n" {} + | awk '{ total += $1 } END { printf "Total runtime: %d hours %d minutes\n", total / 3600, (total % 3600) / 60 }' # runtime
+du -sh ~/Downloads/CarPlaylist # filesize together
 ```
 ## Manual clean up: 
 - Remove all folders containing music you do not like.
@@ -83,7 +85,7 @@ du -sh ~/Downloads/SalasPlaylist # filesize together
 - Erase from the hard disk.
  
 ## Open Issues or Improvements:
-- There is still around 5% of content that my car stereo cannot play; additional investigation is necessary. Despite using mp3check, it consistently reports that all of my files are faulty. So far, I've been resorting to manually skipping to the next track.
+- There is still around 5% of content that my car stereo cannot play, additional investigation is necessary. Despite using mp3check, it consistently reports that all of my files are faulty. So far, I've been resorting to manually skipping to the next track.
 - Improving audio quality: I've chosen "--audio-quality 5", but I haven't noticed any improvement with lower numbers. Files getting biger, but not better.
 - Many MP3 files are not actually in the MP3 format internally; instead, they are in MPEG-2 format. How can I force them into the MP3 format?
 - MP3 normalization is achieved through the use of normalize-audio and mp3gain. These tools do not modify the audio content; rather, they store a correction value that is interpreted by the audio player. However, not all players utilize this data. Is it preferable to implement a hard-coded normalizer instead?
