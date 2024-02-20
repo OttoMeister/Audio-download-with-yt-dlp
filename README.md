@@ -5,7 +5,7 @@ Previously, conducting parallel downloads with yt-dlp while maintaining the play
 ## Tool Preparation
 Install all the necessary programs:
 ```shell
-sudo apt install parallel detox normalize-audio mp3gain mp3info mp3check
+sudo apt install parallel detox normalize-audio mp3gain mp3info mp3check convmv
 wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O ~/.local/bin/yt-dlp
 chmod a+rx ~/.local/bin/yt-dlp 
 yt-dlp --update-to nightly
