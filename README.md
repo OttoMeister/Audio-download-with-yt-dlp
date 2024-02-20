@@ -43,15 +43,15 @@ Implementing this approach leads to extensive downloads, encompassing 118 playli
 time yt-dlp --flat-playlist --simulate --print id -v "https://www.youtube.com/results?search_query=salsa+2023+playlist" | awk -F= '{if(length($1) == 34) print $1}' | awk '!seen[$0]++' | awk '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)#s;%(title)#s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/CarPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta --max-procs 20
 ```
 ## Automatic clean up:
-Use detox to further clean filenames for optimal compatibility.<br>
-Remove filenames containing characters beyond the ASCII range.<br>
-Eliminate files that are either excessively large or too small.<br>
-Delete files with filenames that are too short.<br>
-Remove files with filenames that exceed a certain length.<br>
-Delete files and subdirectories beyond a depth of 2 levels.<br>
-Exclude non-MP3 files from the directory.<br>
-Eradicate directories containing less than 10 files.<br>
-Remove empty directories.<br>
+-Use detox to further clean filenames for optimal compatibility.
+-Remove filenames containing characters beyond the ASCII range.
+-Eliminate files that are either excessively large or too small.
+-Delete files with filenames that are too short.
+-Remove files with filenames that exceed a certain length.
+-Delete files and subdirectories beyond a depth of 2 levels.
+-Exclude non-MP3 files from the directory.
+-Eradicate directories containing less than 10 files.
+-Remove empty directories.
 ```shell
 ionice -c 3 detox -vr ~/Downloads/CarPlaylist
 find ~/Downloads/CarPlaylist -type f -exec sh -c "echo \"{}\" | grep -qP '[^[:ascii:]]'" \; -exec rm {} \;
