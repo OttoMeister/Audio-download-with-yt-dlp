@@ -38,22 +38,34 @@ The initial approach is the most appealing. I've created 7 playlists containing 
 ```shell
 time curl https://www.youtube.com/results?search_query=salsa+2023+playlist | tr '"' '\n' | grep "playlist?list=PL" | grep -oP '(?<=list=)[\w-]+' | awk -F= '{if(length($1) == 34) print $1}' | awk '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)#s;%(title)#s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta --max-procs 20
 ```
-Implementing this approach leads to extensive downloads, encompassing 118 playlists containing 19,520 MP3 files. This procedure will require a considerable amount of time and occupy a substantial portion of disk space. The download process lasted 10 hours, resulting in 14,813 MP3 files totaling 70 gigabytes after cleaning.
+Implementing this approach leads to extensive downloads, encompassing 118 playlists containing 19,520 MP3 files. This procedure will require a considerable amount of time and occupy a substantial portion of disk space. The download process lasted 10 hours, resulting in 14,813 MP3 files totaling 70 gigabytes after cleaning. 1029 hours of music!
 ```shell
 time yt-dlp --flat-playlist --simulate --print id -v "https://www.youtube.com/results?search_query=salsa+2023+playlist" | awk -F= '{if(length($1) == 34) print $1}' | awk '!seen[$0]++' | awk '{print "yt-dlp --ignore-errors -no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)#s;%(title)#s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"~/Downloads/SalasPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --bar --eta --max-procs 20
 ```
 ## Automatic clean up:
+Clean up filenames with convmv - the car stereo likes clean filenames. <br>
 Clean up filenames with detox - the car stereo likes clean filenames. <br>
+Delete filenames with characters outside the ASCII range. <br>
 Delete too big and too small files. <br>
+Deletes file with filename to short. <br>
+Deletes file with filename to long. <br>
 Delete files and subdirectories that are more than 2 levels deep. <br>
 Delete every file that is not a mp3 file. <br>
+Delete directories containing fewer than 10 files. <br>
+Delete empty directories.  <br>
 (Check first with "echo" in front of "rm") <br>
 Normalize, with audio file volume normalizer. Depends on your audio player to work. <br>
 ```shell
+ionice -c 3 convmv --notest -r -f utf-8 -t utf-8 --nfc ~/Downloads/SalasPlaylist/*
 ionice -c 3 detox -vr ~/Downloads/SalasPlaylist
-find ~/Downloads/SalasPlaylist -type f -name "*.mp3" \( -size -3M -o -size +8M \) -exec rm {} \; 
+find ~/Downloads/SalasPlaylist -type f -exec sh -c "echo \"{}\" | grep -qP '[^[:ascii:]]'" \; -exec rm {} \;
+find ~/Downloads/SalasPlaylist/ -type f -regextype posix-egrep -regex ".*/[^/]{1,10}$" -delete
+find ~/Downloads/SalasPlaylist/ -type f -regextype posix-egrep -regex ".*/[^/]{100}[^/]+$" -delete
+find ~/Downloads/SalasPlaylist -type f -name "*.mp3" \( -size -3M -o -size +8M \) -exec rm {} \;
 find ~/Downloads/SalasPlaylist -mindepth 2 -type d -exec rm -rf {} \;
 find ~/Downloads/SalasPlaylist -type f ! -name "*.mp3" -exec rm {} \;
+find ~/Downloads/SalasPlaylist -mindepth 1 -type d -exec sh -c 'if [ $(find "$0" -type f | wc -l) -lt 10 ]; then rm -r "$0"; fi' {} \;
+find ~/Downloads/SalasPlaylist -type d -empty -delete
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 normalize-audio {}
 find ~/Downloads/SalasPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 mp3gain {}
 ```
