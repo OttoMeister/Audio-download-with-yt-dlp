@@ -45,7 +45,7 @@ time yt-dlp --flat-playlist --simulate --print id -v "https://www.youtube.com/re
 ## Automaic clean up:
 Clean up filenames with detox - the car stereo likes clean filenames. <br>
 Delete too big and too small files. <br>
-Delete files and subdirectories that are more than 2 levels deep from ~/Downloads/SalasPlaylist. <br>
+Delete files and subdirectories that are more than 2 levels deep. <br>
 (Check first with "echo" in front of "rm" )<br>
 Normalize, with audio file volume normalizer. Depends on your audio player to work. <br>
 ```
