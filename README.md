@@ -16,7 +16,7 @@ Utilize the search function to find playlists and music genres.
 Once you find a suitable playlist, save the HTML file.
 Use the following command to extract playlist IDs:
 ```
-cat '/home/boss/Downloads/salsa 2023 playlist - YouTube.html' | tr ' ' '\n'| tr '"' ' ' | sed -n 's/.*list=\(.*\)>.*/\1/p' | sort | awk '!seen[$0]++' | awk -F= '{if(length($1) == 35) print $1}' 
+cat '/home/boss/Downloads/salsa 2023 playlist - YouTube.html' | tr ' ' '\n'| tr '"' ' ' | sed -n 's/.*list=\(.*\)>.*/\1/p' | sort | awk '!seen[$0]++' | awk -F= '{if(length($1) == 35) print $1}' | tr '\n ' '
 ```
 You will obtain a list like this:
 
