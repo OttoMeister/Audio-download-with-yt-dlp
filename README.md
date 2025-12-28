@@ -41,6 +41,7 @@ echo "salsa 2025" | sed 's/ /+/g' | xargs -I QUERY nice yt-dlp --playlist-end 10
 - Exclude non-MP3 files from the directory.
 - Eradicate directories containing less than 10 files.
 - Shorts the long filenames
+- Remove comments in mp3
 ```shell
 ionice -c 3 detox -vr ~/Downloads/CarPlaylist
 find ~/Downloads/CarPlaylist -type f -exec sh -c "echo \"{}\" | grep -qP '[^[:ascii:]]'" \; -exec rm {} \;
@@ -51,6 +52,8 @@ find ~/Downloads/CarPlaylist -mindepth 2 -type d -exec rm -rf {} \;
 find ~/Downloads/CarPlaylist -type f ! -name "*.mp3" -exec rm {} \;
 find ~/Downloads/CarPlaylist -mindepth 1 -type d -exec sh -c 'if [ $(find "$0" -type f | wc -l) -lt 10 ]; then rm -r "$0"; fi' {} \;
 find ~/Downloads/CarPlaylist -type f -name '*.mp3' -exec bash -c 'f="$1"; b=$(basename "$f" .mp3); if [[ "$b" =~ _[a-f0-9]{6}$ ]]; then exit 0; fi; d=$(dirname "$f"); s=$(echo "$b" | sed "s/[^a-zA-Z0-9._-]/_/g" | cut -c1-20); h=$(echo -n "$f" | md5sum | cut -c1-6); mv -n "$f" "$d/${s}_${h}.mp3"' _ {} \;
+find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --bar --eta --max-procs 20  eyeD3 --user-text-frame description: --user-text-frame synopsis: {}
+
 ```
 ## Normalize audio file volumes without new encoding 
 ```shell
