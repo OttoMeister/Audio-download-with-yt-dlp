@@ -72,7 +72,6 @@ du -sh ~/Downloads/CarPlaylist # filesize together
 ## Open Issues or Improvements:
 - There is still around 5% of content that my car stereo cannot play, additional investigation is necessary. Despite using mp3check, it consistently reports that all of my files are faulty. So far, I've been resorting to manually skipping to the next track.
 - Improving audio quality: I've chosen "--audio-quality 5", but I haven't noticed any improvement with lower numbers. Files getting biger, but not better.
-- Many MP3 files are not actually in the MP3 format internally; instead, they are in MPEG-2 format. How can I force them into the MP3 format?
 
 ## License
 This project is released under the WTFPL LICENSE.
