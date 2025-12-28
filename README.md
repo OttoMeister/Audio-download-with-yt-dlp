@@ -50,13 +50,11 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" \( -size -3M -o -size +8M \) 
 find ~/Downloads/CarPlaylist -mindepth 2 -type d -exec rm -rf {} \;
 find ~/Downloads/CarPlaylist -type f ! -name "*.mp3" -exec rm {} \;
 find ~/Downloads/CarPlaylist -mindepth 1 -type d -exec sh -c 'if [ $(find "$0" -type f | wc -l) -lt 10 ]; then rm -r "$0"; fi' {} \;
-find ~/Downloads/CarPlaylist -type f -name '*.mp3' -print0 | while IFS= read -r -d '' f; do d=$(dirname "$f"); b=$(basename "$f" .mp3); s=$(echo "$b" | cut -c1-20); h=$(echo -n "$f" | md5sum | cut -c1-6); echo mv -n "$f" "$d/${s}_${h}.mp3"; done
+find ~/Downloads/CarPlaylist -type f -name '*.mp3' -exec bash -c 'f="$1"; d=$(dirname "$f"); b=$(basename "$f" .mp3); s=$(echo "$b" | sed "s/[^a-zA-Z0-9._-]/_/g" | cut -c1-20); h=$(echo -n "$f" | md5sum | cut -c1-6); mv -n "$f" "$d/${s}_${h}.mp3"' _ {} \;
 ```
-## Normalize audio file volumes
-(relying on the audio player for functionality)
+## Normalize audio file volumes without new encoding 
 ```shell
-find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 normalize-audio {}
-find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 mp3gain {}
+find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 mp3gain -r {}
 ```
 ## Usefull information tools:
 ```shell
