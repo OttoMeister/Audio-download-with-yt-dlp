@@ -16,7 +16,7 @@ Utilize the search function to find playlists and music genres.
 Once you find a suitable playlist, save the HTML file.
 Use the following command to extract playlist IDs:
 ```shell
-echo "salsa 2025" | sed 's/ /+/g' | xargs -I QUERY nice yt-dlp --playlist-end 10 --flat-playlist --simulate --print id "https://www.youtube.com/results?search_query=QUERY&sp=EgIQAw==" | awk 'length($1)==34 && !seen[$0]++'
+echo "salsa 2025" | sed 's/ /+/g' | xargs -I QUERY nice yt-dlp --playlist-end 10 --flat-playlist --simulate --print id "https://www.youtube.com/results?search_query=QUERY&sp=EgIQAw==" | awk 'length($1)==34 && !seen[$0]++' | xargs
 ```
 You will obtain a list like this:
 
