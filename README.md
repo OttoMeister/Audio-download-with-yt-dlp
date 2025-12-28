@@ -40,7 +40,7 @@ echo "salsa 2025" | sed 's/ /+/g' | xargs -I QUERY nice yt-dlp --playlist-end 10
 - Delete files and subdirectories beyond a depth of 2 levels.
 - Exclude non-MP3 files from the directory.
 - Eradicate directories containing less than 10 files.
-- Shorts the long filenames
+- Shorts the long filenames and put youtube id at end
 - Remove comments in mp3
 - Reduce the size of the picture in the mp3
 ```shell
@@ -52,7 +52,8 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" \( -size -3M -o -size +8M \) 
 find ~/Downloads/CarPlaylist -mindepth 2 -type d -exec rm -rf {} \;
 find ~/Downloads/CarPlaylist -type f ! -name "*.mp3" -exec rm {} \;
 find ~/Downloads/CarPlaylist -mindepth 1 -type d -exec sh -c 'if [ $(find "$0" -type f | wc -l) -lt 10 ]; then rm -r "$0"; fi' {} \;
-find ~/Downloads/CarPlaylist -type f -name '*.mp3' -exec bash -c 'f="$1"; b=$(basename "$f" .mp3); if [[ "$b" =~ _[a-f0-9]{6}$ ]]; then exit 0; fi; d=$(dirname "$f"); s=$(echo "$b" | sed "s/[^a-zA-Z0-9._-]/_/g" | cut -c1-20); h=$(echo -n "$f" | md5sum | cut -c1-6); mv -n "$f" "$d/${s}_${h}.mp3"' _ {} \;
+find ~/Downloads/CarPlaylist -type f -name '*.mp3' -exec bash -c 'f="$1"; b=$(basename "$f" .mp3); if [[ "$b" =~ _[a-f0-9]{6}$ ]]; then exit 0; fi; 
+find /home/boss/Downloads/CarPlaylist -type f -name "*.mp3" | parallel 'ytid=$(exiftool -Comment -s3 {} | sed -n "s/.*v=\([a-zA-Z0-9_-]\{11\}\).*/\1/p"); if [ -n "$ytid" ]; then b=$(basename {} .mp3); s=$(echo "${b}" | sed "s/[^a-zA-Z0-9._-]/_/g" | cut -c1-20); mv -n {} "$(dirname {})/${s}_${ytid}.mp3"; fi'
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --bar --eta --max-procs 20  eyeD3 --user-text-frame description: --user-text-frame synopsis: {}
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --bar --eta --max-procs 20 'exiftool -Picture -b {} | convert - -resize 500x500 -quality 80 /tmp/cover_{#}.jpg && eyeD3 --remove-all-images {} && eyeD3 --add-image /tmp/cover_{#}.jpg:FRONT_COVER {} && rm /tmp/cover_{#}.jpg'
 
