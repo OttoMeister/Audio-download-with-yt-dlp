@@ -68,7 +68,7 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel -
 - Compression (Uniform Volume): -filter:a dynaudnorm=compress=10:peak=0.9:targetrms=0.2
 - Gentle Normalization (Preserve Original Dynamics): -filter:a dynaudnorm=framelen=2000:gausssize=51:maxgain=5:peak=0.95
 ```shell
-find /home/boss/Downloads/CarPlaylist  -type f -name "*.mp3" | nice ionice -c 3 parallel --max-procs 16 --bar --eta  "ffmpeg -y -i {} -filter:a dynaudnorm -c:a libmp3lame -b:a 128k -c:v copy -map_metadata 0 -id3v2_version 3 {.}_tmp.mp3 && mv {.}_tmp.mp3 {}"
+find /home/boss/Downloads/CarPlaylist  -type f -name "*.mp3" | nice ionice -c 3 parallel --max-procs 16 "ffmpeg -y -i {} -filter:a dynaudnorm -c:a libmp3lame -b:a 128k -c:v copy -map_metadata 0 -id3v2_version 3 {.}_tmp.mp3 && mv {.}_tmp.mp3 {}"
 ```
 ## Usefull information tools:
 ```shell
