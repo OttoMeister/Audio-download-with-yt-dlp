@@ -43,9 +43,9 @@ echo "salsa 2025" | sed 's/ /+/g' | xargs -I QUERY nice yt-dlp --playlist-end 10
 - Shorts the long filenames and put youtube id at end
 - Remove comments in mp3
 - Reduce the size of the picture in the mp3
+- Delete files without cover
 ```shell
-ionice -c 3 detox -vr ~/Downloads/CarPlaylist
-# Nur problematische Unicode-Bereiche löschen
+detox -vr ~/Downloads/CarPlaylist
 find ~/Downloads/CarPlaylist -type f -exec sh -c "echo \"{}\" | grep -qP '[\x{0100}-\x{FFFF}]'" \; -exec rm {} \;
 find ~/Downloads/CarPlaylist -type f -regextype posix-egrep -regex ".*/[^/]{1,10}$" -delete
 find ~/Downloads/CarPlaylist -type f -regextype posix-egrep -regex ".*/[^/]{100}[^/]+$" -delete
@@ -56,7 +56,7 @@ find ~/Downloads/CarPlaylist -mindepth 1 -type d -exec sh -c 'if [ $(find "$0" -
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel 'ytid=$(exiftool -Comment -s3 {} | sed -n "s/.*v=\([a-zA-Z0-9_-]\{11\}\).*/\1/p"); if [ -n "$ytid" ]; then b=$(basename {} .mp3); s=$(echo "${b}" | sed "s/[^a-zA-Z0-9._-]/_/g" | cut -c1-20); mv -n {} "$(dirname {})/${s}_${ytid}.mp3"; fi'
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel eyeD3 --user-text-frame description: --user-text-frame synopsis: {}
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel 'exiftool -Picture -b {} | convert - -resize 500x500 -quality 80 /tmp/cover_{#}.jpg && eyeD3 --remove-all-images {} && eyeD3 --add-image /tmp/cover_{#}.jpg:FRONT_COVER {} && rm /tmp/cover_{#}.jpg'
-
+find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel 'if ! exiftool -Picture -b {} 2>/dev/null | file - | grep -q image; then rm  {}; fi'
 ```
 ## Normalize audio file volumes without new encoding 
 ```shell
