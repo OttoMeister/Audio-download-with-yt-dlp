@@ -52,7 +52,7 @@ find ~/Downloads/CarPlaylist -mindepth 2 -type d -depth -delete
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel 'ytid=$(exiftool -Comment -s3 {} | sed -n "s/.*v=\([a-zA-Z0-9_-]\{11\}\).*/\1/p"); if [ -n "$ytid" ]; then b=$(basename {} .mp3); s=$(echo "${b}" | sed "s/[^a-zA-Z0-9._-]/_/g" | cut -c1-20); mv -n {} "$(dirname {})/${s}_${ytid}.mp3"; fi'
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel 'if exiftool -Picture -b {} 2>/dev/null | file - | grep -q image; then exiftool -Picture -b {} | convert - -resize 500x500 -quality 80 /tmp/cover_{#}.jpg && eyeD3 --remove-all-images {} && eyeD3 --add-image /tmp/cover_{#}.jpg:FRONT_COVER {} && rm /tmp/cover_{#}.jpg; fi'
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel 'if ! exiftool -Picture -b {} 2>/dev/null | file - | grep -q image; then rm {}; fi'
-find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel 'eyeD3 --user-text-frame="description:" --user-text-frame="synopsis:" {}'
+find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel 'eyeD3 --user-text-frame="description:" --user-text-frame="comment:" --user-text-frame="synopsis:" {}'
 ```
 ## Normalize audio file volumes without new encoding 
 ```shell
