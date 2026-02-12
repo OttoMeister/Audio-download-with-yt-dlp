@@ -59,7 +59,7 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel '
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 mp3gain -r {}
 ```
 ## Normalize audio file volumes with new encoding
-- Basic Normalization: -filter:a   <br>
+- Basic Normalization: -filter:a dynaudnorm <br>
 - Gentle Normalization (Music): -filter:a dynaudnorm=framelen=1000:gausssize=31:peak=0.95 <br>
 - Aggressive Normalization (Podcasts/Audiobooks): -filter:a dynaudnorm=framelen=500:gausssize=15:maxgain=20:targetrms=0.25 <br>
 - Compression (Uniform Volume): -filter:a dynaudnorm=compress=10:peak=0.9:targetrms=0.2 <br>
