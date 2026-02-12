@@ -11,15 +11,11 @@ chmod a+rx ~/.local/bin/yt-dlp
 yt-dlp --update-to nightly
 ```
 ## Acquire the Playlist ID Semi-Automatically or Manually
-Open your web browser and navigate to YouTube.
-Utilize the search function to find playlists and music genres.
-Once you find a suitable playlist, save the HTML file.
 Use the following command to extract playlist IDs:
 ```shell
 echo "salsa 2025" | sed 's/ /+/g' | xargs -I QUERY nice yt-dlp --playlist-end 10 --flat-playlist --simulate --print id "https://www.youtube.com/results?search_query=QUERY&sp=EgIQAw==" | awk 'length($1)==34 && !seen[$0]++' | xargs
 ```
 You will obtain a list like this:
-
 PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLFxMfmFGz8rFggUvGY8G_m1JIPQLKxPcq PLWEEt0QgQFIn8neNfE8EzRi1hsNn8CovL
 
 ## Download your manual precesed list:
@@ -32,18 +28,18 @@ The initial approach is the most appealing. I've created 10 playlists containing
 echo "salsa 2025" | sed 's/ /+/g' | xargs -I QUERY nice yt-dlp --playlist-end 10 --flat-playlist --simulate --print id "https://www.youtube.com/results?search_query=QUERY&sp=EgIQAw==" | awk 'length($1)==34 && !seen[$0]++' | awk '{print "yt-dlp --ignore-errors --no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{gsub(/[^a-zA-Z0-9 ._-]/,"",$2); gsub(/[^a-zA-Z0-9 ._-]/,"",$3); print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"$HOME/Downloads/CarPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --max-procs 16 --bar --eta
 ```
 ## Automatic clean up:
-Clean filenames by removing or replacing problematic characters
-Delete all non-MP3 files
-Delete directories containing fewer than 10 files
-Delete files with Unicode characters in path
-Delete files with filenames shorter than 10 characters
-Delete files with filenames longer than 100 characters
-Delete MP3s smaller than 3MB or larger than 8MB
-Delete all subdirectories deeper then 2
-Rename files based on YouTube ID extracted from metadata
-Resize and compress cover art to 500x500 at 80% quality
-Delete MP3s without cover art
-Clear description and synopsis metadata fields
+- Clean filenames by removing or replacing problematic characters <br>
+- Delete all non-MP3 files <br>
+- Delete directories containing fewer than 10 files <br>
+- Delete files with Unicode characters in path <br>
+- Delete files with filenames shorter than 10 characters <br>
+- Delete files with filenames longer than 100 characters <br>
+- Delete MP3s smaller than 3MB or larger than 8MB <br>
+- Delete all subdirectories deeper then 2 <br>
+- Rename files based on YouTube ID extracted from metadata <br>
+- Resize and compress cover art to 500x500 at 80% quality <br>
+- Delete MP3s without cover art <br>
+- Clear description and synopsis metadata fields <br>
 ```shell
 detox -vr ~/Downloads/CarPlaylist
 find ~/Downloads/CarPlaylist -type f ! -name "*.mp3" -exec rm {} \;
@@ -63,11 +59,11 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel '
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 mp3gain -r {}
 ```
 ## Normalize audio file volumes with new encoding
-- Basic Normalization: -filter:a dynaudnorm
-- Gentle Normalization (Music): -filter:a dynaudnorm=framelen=1000:gausssize=31:peak=0.95
-- Aggressive Normalization (Podcasts/Audiobooks): -filter:a dynaudnorm=framelen=500:gausssize=15:maxgain=20:targetrms=0.25
-- Compression (Uniform Volume): -filter:a dynaudnorm=compress=10:peak=0.9:targetrms=0.2
-- Gentle Normalization (Preserve Original Dynamics): -filter:a dynaudnorm=framelen=2000:gausssize=51:maxgain=5:peak=0.95
+- Basic Normalization: -filter:a   <br>
+- Gentle Normalization (Music): -filter:a dynaudnorm=framelen=1000:gausssize=31:peak=0.95 <br>
+- Aggressive Normalization (Podcasts/Audiobooks): -filter:a dynaudnorm=framelen=500:gausssize=15:maxgain=20:targetrms=0.25 <br>
+- Compression (Uniform Volume): -filter:a dynaudnorm=compress=10:peak=0.9:targetrms=0.2 <br>
+- Gentle Normalization (Preserve Original Dynamics): -filter:a dynaudnorm=framelen=2000:gausssize=51:maxgain=5:peak=0.95 <br>
 ```shell
 find /home/boss/Downloads/CarPlaylist  -type f -name "*.mp3" | nice ionice -c 3 parallel --max-procs 16 "ffmpeg -y -i {} -filter:a dynaudnorm -c:a libmp3lame -b:a 128k -c:v copy -map_metadata 0 -id3v2_version 3 {.}_tmp.mp3 && mv {.}_tmp.mp3 {}"
 ```
@@ -79,10 +75,10 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" -exec mp3info -p "%S\n" {} + 
 du -sh ~/Downloads/CarPlaylist # filesize together
 ```
 ## Manual clean up: 
-- Remove all folders containing music you do not like.
-- Shorten directory names.
-- Copy to an MP3 stick.
-- Erase from the hard disk.
+- Remove all folders containing music you do not like <br>
+- Shorten directory names <br>
+- Copy to an MP3 stick <br>
+- Erase from the hard disk <br>
 
 ## License
 This project is released under the WTFPL LICENSE.
