@@ -53,6 +53,7 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel 'ytid=$(exiftool -
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel 'if exiftool -Picture -b {} 2>/dev/null | file - | grep -q image; then exiftool -Picture -b {} | convert - -resize 500x500 -quality 80 /tmp/cover_{#}.jpg && eyeD3 --remove-all-images {} && eyeD3 --add-image /tmp/cover_{#}.jpg:FRONT_COVER {} && rm /tmp/cover_{#}.jpg; fi'
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel 'if ! exiftool -Picture -b {} 2>/dev/null | file - | grep -q image; then rm {}; fi'
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel 'eyeD3 --user-text-frame="description:" --user-text-frame="comment:" --user-text-frame="synopsis:" {}'
+find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel 'eyeD3 {} --remove-all-comments --user-text-frame="description:" --user-text-frame="synopsis:"'
 ```
 ## Normalize audio file volumes without new encoding 
 ```shell
