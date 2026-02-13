@@ -6,9 +6,10 @@ Previously, it was not possible to perform parallel downloads with yt-dlp while 
 Install all the necessary programs:
 ```shell
 sudo apt install parallel detox normalize-audio mp3gain mp3info mp3check detox eyed3 exiftool imagemagick id3v2 unzip
-curl -fsSL https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip | funzip | sudo tee /usr/local/bin/deno >/dev/null && sudo chmod +x /usr/local/bin/deno
+mkdir -p ~/.local/bin
+wget https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip -qO- | funzip >~/.local/bin/deno
 wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O ~/.local/bin/yt-dlp
-chmod a+rx ~/.local/bin/yt-dlp 
+chmod a+rx ~/.local/bin/yt-dlp  ~/.local/bin/deno
 yt-dlp --update-to nightly
 ```
 ## Acquire the Playlist ID Semi-Automatically or Manually
