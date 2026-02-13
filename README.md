@@ -59,10 +59,10 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel '
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel id3v2 -s {}
 ```
 ## Normalize audio file volumes without new encoding 
+- "loudgain -q -s e" (recommended) - Writes Metadata Tags (Leaves audio data untouched). Best for new player. <br>
+- "mp3gain -r" (deprecated) - Modifies Audio Data (Lossless but changes file structure). Best for older hardware. <br>
 ```shell
-# loudgain (Recommended) - Implements ReplayGain 2.0 standard
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20  loudgain -q -s e {}
-# mp3gain (deprecated)
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 mp3gain -r {}
 ```
 ## Normalize audio file volumes with new encoding
