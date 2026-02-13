@@ -58,14 +58,14 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel 'if ! exiftool -Pi
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel 'eyeD3 {} --remove-all-comments --user-text-frame="description:" --user-text-frame="synopsis:"'
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel id3v2 -s {}
 ```
-## Normalize audio file volumes without new encoding 
+## Normalize audio file volumes without new encoding (use only one!)
 - "loudgain -q -s e" (recommended) - Writes Metadata Tags (Leaves audio data untouched). Best for new player. 
 - "mp3gain -r" (deprecated) - Modifies Audio Data (Lossless but changes file structure). Best for older hardware. 
 ```shell
-find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 loudgain -q -s e {}
+# find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 loudgain -q -s e {}
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 mp3gain -r {}
 ```
-## Normalize audio file volumes with new encoding
+## Normalize audio file volumes with new encoding to 128k CBR. Best for very old hardware. 
 - Basic Normalization: -filter:a dynaudnorm 
 - Gentle Normalization (Music): -filter:a dynaudnorm=framelen=1000:gausssize=31:peak=0.95 
 - Aggressive Normalization (Podcasts/Audiobooks): -filter:a dynaudnorm=framelen=500:gausssize=15:maxgain=20:targetrms=0.25 
