@@ -5,7 +5,7 @@ Previously, it was not possible to perform parallel downloads with yt-dlp while 
 ## Tool Preparation
 Install all the necessary programs: 
 ```shell
-sudo apt install parallel normalize-audio mp3gain mp3info mp3check detox eyed3 exiftool imagemagick id3v2 unzip
+sudo apt install parallel normalize-audio mp3gain mp3info loudgain mp3check detox eyed3 exiftool imagemagick id3v2 unzip
 #mkdir -p ~/.local/bin && echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
 wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O ~/.local/bin/yt-dlp
 wget https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip -qO- | funzip >~/.local/bin/deno
@@ -60,6 +60,9 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel id3v2 -s {}
 ```
 ## Normalize audio file volumes without new encoding 
 ```shell
+# loudgain (Recommended) - Implements ReplayGain 2.0 standard
+find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20  loudgain -q -s e {}
+# mp3gain (deprecated)
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 mp3gain -r {}
 ```
 ## Normalize audio file volumes with new encoding
