@@ -3,13 +3,13 @@
 Previously, it was not possible to perform parallel downloads with yt-dlp while preserving the playlist name as the directory and retaining metadata. However, an effective solution using AWK has now been discovered. This method enables true parallel downloads while maintaining the desired structure and metadata, resulting in a significant performance boost. With this approach, download speeds improve by roughly 20×, allowing approximately 1,000 songs to be downloaded in just 15 minutes.
 
 ## Tool Preparation
-Install all the necessary programs:
+Install all the necessary programs: 
 ```shell
 sudo apt install parallel normalize-audio mp3gain mp3info mp3check detox eyed3 exiftool imagemagick id3v2 unzip
-mkdir -p ~/.local/bin
-wget https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip -qO- | funzip >~/.local/bin/deno
+#mkdir -p ~/.local/bin && echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
 wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O ~/.local/bin/yt-dlp
-chmod a+rx ~/.local/bin/yt-dlp  ~/.local/bin/deno
+wget https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip -qO- | funzip >~/.local/bin/deno
+chmod a+rx ~/.local/bin/yt-dlp ~/.local/bin/deno
 yt-dlp --update-to nightly
 ```
 ## Acquire the Playlist ID Semi-Automatically or Manually
