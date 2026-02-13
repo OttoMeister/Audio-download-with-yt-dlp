@@ -5,7 +5,7 @@ Previously, it was not possible to perform parallel downloads with yt-dlp while 
 ## Tool Preparation
 Install all the necessary programs: 
 ```shell
-sudo apt install parallel normalize-audio mp3gain mp3info loudgain mp3check detox eyed3 exiftool imagemagick id3v2 unzip
+sudo apt install parallel normalize-audio mp3gain mp3info loudgain mp3check detox fdupes eyed3 exiftool imagemagick id3v2 unzip
 # mkdir -p ~/.local/bin && echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
 wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O ~/.local/bin/yt-dlp
 wget https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip -qO- | funzip >~/.local/bin/deno
@@ -37,12 +37,13 @@ echo "salsa 2025" | sed 's/ /+/g' | xargs -I QUERY nice yt-dlp --playlist-end 10
 - Delete files with filenames shorter than 10 characters 
 - Delete files with filenames longer than 100 characters 
 - Delete MP3s smaller than 3MB or larger than 8MB 
-- Delete all subdirectories deeper then 2 
+- Delete all subdirectories deeper then 2
+- Delete duplicate files
 - Rename files based on YouTube ID extracted from metadata 
 - Resize and compress cover art to 500x500 at 80% quality 
 - Delete MP3s without cover art 
 - Clear description, comment and synopsis metadata fields 
-- Converts all tags to ID3v2.3 
+- Converts all tags to ID3v2.3
 ```shell
 detox -vr ~/Downloads/CarPlaylist
 find ~/Downloads/CarPlaylist -type f ! -name "*.mp3" -exec rm {} \;
@@ -52,6 +53,7 @@ find ~/Downloads/CarPlaylist -type f -regextype posix-egrep -regex ".*/[^/]{1,10
 find ~/Downloads/CarPlaylist -type f -regextype posix-egrep -regex ".*/[^/]{100}[^/]+$" -delete
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" \( -size -3M -o -size +8M \) -exec rm {} \;
 find ~/Downloads/CarPlaylist -mindepth 2 -type d -delete
+fdupes --noprompt --delete --recurse ~/Downloads/CarPlaylist
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel 'ytid=$(exiftool -Comment -s3 {} | sed -n "s/.*v=\([a-zA-Z0-9_-]\{11\}\).*/\1/p"); if [ -n "$ytid" ]; then b=$(basename {} .mp3); s=$(echo "${b}" | sed "s/[^a-zA-Z0-9._-]/_/g" | cut -c1-20); mv -n {} "$(dirname {})/${s}_${ytid}.mp3"; fi'
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel 'if exiftool -Picture -b {} 2>/dev/null | file - | grep -q image; then exiftool -Picture -b {} | convert - -resize 500x500 -quality 80 /tmp/cover_{#}.jpg && eyeD3 --remove-all-images {} && eyeD3 --add-image /tmp/cover_{#}.jpg:FRONT_COVER {} && rm /tmp/cover_{#}.jpg; fi'
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel 'if ! exiftool -Picture -b {} 2>/dev/null | file - | grep -q image; then rm {}; fi'
