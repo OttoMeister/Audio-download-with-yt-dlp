@@ -42,7 +42,7 @@ echo "salsa 2025" | sed 's/ /+/g' | xargs -I QUERY nice yt-dlp --playlist-end 10
 - Resize and compress cover art to 500x500 at 80% quality <br>
 - Delete MP3s without cover art <br>
 - Clear description, comment and synopsis metadata fields <br>
-- ID3v1 Tag komplett entfernen <br>
+- Converts all tags to ID3v2.3 <br>
 ```shell
 detox -vr ~/Downloads/CarPlaylist
 find ~/Downloads/CarPlaylist -type f ! -name "*.mp3" -exec rm {} \;
