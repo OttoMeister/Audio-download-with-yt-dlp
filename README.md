@@ -15,7 +15,7 @@ yt-dlp --update-to nightly
 ## Acquire the Playlist ID Semi-Automatically or Manually
 Use the following command to extract playlist IDs:
 ```shell
-echo "salsa 2025" | sed 's/ /+/g' | xargs -I QUERY nice yt-dlp --playlist-end 10 --flat-playlist --simulate --print id "https://www.youtube.com/results?search_query=QUERY&sp=EgIQAw==" | awk 'length($1)==34 && !seen[$0]++' | xargs
+echo "salsa 2025" | sed 's/ /+/g' | xargs -I QUERY yt-dlp --playlist-end 10 --flat-playlist --simulate --print id "https://www.youtube.com/results?search_query=QUERY&sp=EgIQAw==" | awk 'length($1)==34 && !seen[$0]++' | xargs
 ```
 You will obtain a list like this:
 PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLFxMfmFGz8rFggUvGY8G_m1JIPQLKxPcq PLWEEt0QgQFIn8neNfE8EzRi1hsNn8CovL
@@ -27,11 +27,11 @@ echo PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 PLJzW
 ## 100% automatic download:
 The initial approach is the most appealing. I've created 10 playlists containing 519 MP3 songs, which will then be condensed to 434 files, totaling 30 hours of music playback. These files will consume 1.8 gigabytes of storage space. The anticipated download duration is approximately 9 minutes.
 ```shell
-echo "salsa 2025" | sed 's/ /+/g' | xargs -I QUERY nice yt-dlp --playlist-end 10 --flat-playlist --simulate --print id "https://www.youtube.com/results?search_query=QUERY&sp=EgIQAw==" | awk 'length($1)==34 && !seen[$0]++' | awk '{print "yt-dlp --ignore-errors --no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{gsub(/[^a-zA-Z0-9 ._-]/,"",$2); gsub(/[^a-zA-Z0-9 ._-]/,"",$3); print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"$HOME/Downloads/CarPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --max-procs 16 --bar --eta
+echo "salsa 2025" | sed 's/ /+/g' | xargs -I QUERY yt-dlp --playlist-end 10 --flat-playlist --simulate --print id "https://www.youtube.com/results?search_query=QUERY&sp=EgIQAw==" | awk 'length($1)==34 && !seen[$0]++' | awk '{print "yt-dlp --ignore-errors --no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{gsub(/[^a-zA-Z0-9 ._-]/,"",$2); gsub(/[^a-zA-Z0-9 ._-]/,"",$3); print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata " $1 " -o \"$HOME/Downloads/CarPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --max-procs 16 --bar --eta
 ```
 ## Same like above, but with dynamic range compression and dynamic audio normalization (very slow):
 ```shell
-echo "salsa 2025" | sed 's/ /+/g' | xargs -I QUERY nice yt-dlp --playlist-end 10 --flat-playlist --simulate --print id "https://www.youtube.com/results?search_query=QUERY&sp=EgIQAw==" | awk 'length($1)==34 && !seen[$0]++' | awk '{print "yt-dlp --ignore-errors --no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{gsub(/[^a-zA-Z0-9 ._-]/,"",$2); gsub(/[^a-zA-Z0-9 ._-]/,"",$3); print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata --postprocessor-args \047ExtractAudio+ffmpeg:-filter:a loudnorm=I=-14:TP=-1.5:LRA=11\047 " $1 " -o \"$HOME/Downloads/CarPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --max-procs 16 --bar --eta
+echo "salsa 2025" | sed 's/ /+/g' | xargs -I QUERY yt-dlp --playlist-end 10 --flat-playlist --simulate --print id "https://www.youtube.com/results?search_query=QUERY&sp=EgIQAw==" | awk 'length($1)==34 && !seen[$0]++' | awk '{print "yt-dlp --ignore-errors --no-abort-on-error --no-warnings --no-check-certificate --print \"https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s.mp3\" --flat-playlist " $1}' | parallel --max-procs 20 --silent | awk -F';' '{gsub(/[^a-zA-Z0-9 ._-]/,"",$2); gsub(/[^a-zA-Z0-9 ._-]/,"",$3); print "yt-dlp --no-check-certificate --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata --postprocessor-args \047ExtractAudio+ffmpeg:-filter:a loudnorm=I=-14:TP=-1.5:LRA=11\047 " $1 " -o \"$HOME/Downloads/CarPlaylist/" $2 "/" $3"\""}' | nice ionice -c 3 parallel --max-procs 16 --bar --eta
 ```
 ## Automatic clean up:
 - Clean filenames by removing or replacing problematic characters 
@@ -68,8 +68,8 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel id3v2 -s {}
 - "loudgain -q -s e" (recommended) - Writes Metadata Tags (Leaves audio data untouched). Best for new player. 
 - "mp3gain -r" (deprecated) - Modifies Audio Data (Lossless but changes file structure). Best for older hardware. 
 ```shell
-# find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 loudgain -q -s e {}
-find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice ionice -c 3 parallel --eta --max-procs 20 mp3gain -r {}
+# find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice parallel --eta --max-procs 20 loudgain -q -s e {}
+find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice parallel --eta --max-procs 20 mp3gain -r {}
 ```
 ## Usefull information tools:
 ```shell
