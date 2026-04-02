@@ -10,11 +10,20 @@ echo PLffX9yMQbaQhZbTRat79oh1kHhGHwv1Sn | parallel -d ' ' 'yt-dlp --ignore-error
 
 Routes yt-dlp downloads through an isolated WireGuard network namespace and keeping the rest of the system's traffic unaffected.
 You can have muliple random conections at the same time. Perfect for use with gnu parallel.
-Move script to ~/.local/bin/vpn-yt-dlp and add execution "chmod a+x ~/.local/bin/vpn-yt-dlp" 
-Use like this: "vpn-yt-dlp rand https://www.youtube.com/watch?v=1nnatyEvxQU" or "vpn-yt-dlp us-slc https://www.youtube.com/watch?v=1nnatyEvxQU"
+
+
+Check first WireGuard is working: 
+```shell
+ls /etc/wireguard/*.conf | xargs -n 1 basename -s .conf | tr '\n' ' '; echo
+# ar-bua at-vie ch-zur co-bog de-ber de-fra ec-uio es-mad fr-par ie-dub it-mil jp-tok kr-seo mx-qro pa-pac pe-lim pt-lis py-asu se-sto tr-ist tw-tai us-bos us-chi us-dal us-mia us-nyc us-slc ve-car
+# start - status - stop
+sudo wg-quick up ch-zur
+sudo wg
+sudo ip a show ch-zur
+sudo wg-quick down ch-zur
+```
+Here is the script Move script to ~/.local/bin/vpn-yt-dlp and add execution "chmod a+x ~/.local/bin/vpn-yt-dlp". Use like this: "vpn-yt-dlp rand https://www.youtube.com/watch?v=1nnatyEvxQU" or "vpn-yt-dlp us-slc https://www.youtube.com/watch?v=1nnatyEvxQU".
 You cann use all the parameter as in yt-dlp just put rand or you VPN at first argument.
-
-
 ```shell
 #!/usr/bin/env bash
 set -euo pipefail
