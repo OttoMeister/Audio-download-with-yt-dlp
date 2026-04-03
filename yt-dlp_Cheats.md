@@ -58,5 +58,11 @@ for i in $(seq 1 20); do
 done
 ALL_PROXY="socks5h://127.0.0.1:$P" $HOME/.local/bin/yt-dlp "$@"
 ```
-
-
+For exampe I produce a download list with "nice ionice -c 3 vpn-yt-dlp rand"
+```shell
+echo "Banda Sinaloa" | parallel --ungroup --silent 'yt-dlp --playlist-end 20 --flat-playlist --simulate --match-filter "id~=^PL" --print id "https://www.youtube.com/results?search_query={= s/ /+/g =}&sp=EgIQAw=="' | parallel --ungroup --silent 'yt-dlp --ignore-errors --no-warnings --print "https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s" --flat-playlist {}' | parallel --colsep ';' --ungroup --silent 'printf "nice ionice -c 3 vpn-yt-dlp rand --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata {1} -o \"$HOME/Downloads/CarPlaylist8/{=2 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}/{=3 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}.mp3\"\n"'  >do1.sh
+```
+And then I download 2 times form very cuntry posible:
+```shell
+cat do1.sh | shuf | parallel --max-procs 16 --ungroup --silent
+```
