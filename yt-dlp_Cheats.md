@@ -26,41 +26,37 @@ wg-quick down ch-zur
 Here is the script Move script to ~/.local/bin/vpn-yt-dlp and add execution "chmod a+x ~/.local/bin/vpn-yt-dlp". Use like this: "vpn-yt-dlp rand https://www.youtube.com/watch?v=1nnatyEvxQU" or "vpn-yt-dlp us-slc https://www.youtube.com/watch?v=1nnatyEvxQU".
 You cann use all the parameter as in yt-dlp just put rand or you VPN at first argument.
 ```shell
-#!/usr/bin/env bash
-set -euo pipefail
-WG_DIR="/etc/wireguard"; NS="vpn-yt-$$"; WG_IF="wg-yt-$$"
-[[ $EUID -ne 0 ]] && exec sudo --preserve-env=HOME "$0" "$@"
-REAL_HOME=$(getent passwd "${SUDO_USER:-$USER}" | cut -d: -f6)
-YTDLP="$REAL_HOME/.local/bin/yt-dlp"; DENO="$REAL_HOME/.local/bin/deno"
-die() { echo "Error: $*"; exit 1; }
-[[ $# -lt 2 ]] && { echo "Usage: $(basename "$0") <rand|vpn> [yt-dlp-opts]"
-  echo -n "VPNs: "; ls "$WG_DIR"/*.conf | xargs -n1 basename -s .conf | tr '\n' ' '; echo; exit 1; }
-AVAILABLE=($(ls "$WG_DIR"/*.conf | xargs -n1 basename -s .conf))
-[[ "$1" == "rand" ]] && VPN="${AVAILABLE[$RANDOM % ${#AVAILABLE[@]}]}" \
-  || { [[ -f "$WG_DIR/$1.conf" ]] && VPN="$1" || die "'$1' unknown."; }
+#!/bin/bash
+set -e
+[[ -z "$1" ]] && { echo "Usage: $0 <vpn|rand> [yt-dlp args...]" >&2; exit 1; }
+A=($(ls /etc/wireguard/*.conf 2>/dev/null | xargs -n1 basename -s .conf))
+[[ "$1" == "rand" ]] && V="${A[$RANDOM % ${#A[@]}]}" || \
+  { V="$1"; [[ -f "/etc/wireguard/$V.conf" ]] || { echo "Not found: $V" >&2; exit 1; }; }
 shift
-trap 'ip netns exec "$NS" ip link delete "$WG_IF" 2>/dev/null||true
-      ip netns delete "$NS" 2>/dev/null||true; rm -rf "/etc/netns/$NS"' EXIT INT TERM
-S=$(sed 's/#.*//;/^[[:space:]]*$/d' "$WG_DIR/$VPN.conf")
-gi() { echo "$S" | grep -m1 "^$1" | cut -d= -f2- | sed 's/^ *//;s/ *$//'; }
-gp() { echo "$S" | grep -A5 '^\[Peer\]' | grep -m1 "^$1" | cut -d= -f2- | sed 's/^ *//;s/ *$//'; }
-PK=$(gi PrivateKey); ADDR=$(gi Address); DNS=$(gi DNS)
-PUBK=$(gp PublicKey); EP=$(gp Endpoint); AIPS=$(gp AllowedIPs); PSK=$(gp PresharedKey||true)
-EP_IP=$(getent hosts "${EP%:*}" | awk '{print $1;exit}')
-[[ -z "$EP_IP" ]] && die "DNS lookup failed for ${EP%:*}."
-echo "[vpn-yt-dlp] VPN=$VPN EP=$EP_IP"
-ip netns add "$NS"; ip netns exec "$NS" ip link set lo up
-ip link add "$WG_IF" type wireguard; ip link set "$WG_IF" netns "$NS"
-ip netns exec "$NS" wg set "$WG_IF" private-key <(echo "$PK") listen-port 0 \
-  peer "$PUBK" ${PSK:+preshared-key <(echo "$PSK")} \
-  endpoint "$EP_IP:${EP##*:}" allowed-ips "$AIPS" persistent-keepalive 25
-echo "$ADDR" | tr ',' '\n' | sed 's/^ *//;s/ *$//' \
-  | xargs -r -I{} ip netns exec "$NS" ip addr add {} dev "$WG_IF"
-ip netns exec "$NS" ip link set "$WG_IF" up; ip netns exec "$NS" ip route add default dev "$WG_IF"
-mkdir -p "/etc/netns/$NS"; echo "nameserver ${DNS%%,*}" > "/etc/netns/$NS/resolv.conf"
-echo -n "[vpn-yt-dlp] External IP: "
-ip netns exec "$NS" curl -s --max-time 5 https://api.ipify.org || echo "unknown"; echo
-ip netns exec "$NS" sudo -u "${SUDO_USER:-$USER}" "$YTDLP" --js-runtimes "deno:$DENO" "$@"
+echo "VPN: $V" >&2
+P=$(shuf -i 2000-65000 -n 1)
+while ss -ltn | grep -q ":$P "; do P=$(shuf -i 2000-65000 -n 1); done
+C=$(sed 's/#.*//;/^[[:space:]]*$/d' "/etc/wireguard/$V.conf")
+PK=$(grep -m1 '^PrivateKey' <<< "$C" | cut -d= -f2- | xargs)
+AD=$(grep -m1 '^Address'    <<< "$C" | cut -d= -f2- | xargs)
+PB=$(grep -m1 '^PublicKey'  <<< "$C" | cut -d= -f2- | xargs)
+EP=$(grep -m1 '^Endpoint'   <<< "$C" | cut -d= -f2- | xargs)
+[[ -z "$PK" || -z "$AD" || -z "$PB" || -z "$EP" ]] && \
+  { echo "Incomplete config." >&2; exit 1; }
+IP=$(getent hosts "${EP%:*}" | awk '{print $1; exit}')
+[[ -z "$IP" ]] && { echo "Cannot resolve hostname: ${EP%:*}" >&2; exit 1; }
+T=$(mktemp)
+trap 'rm -f "$T"; [[ -n "$WP" ]] && kill "$WP" 2>/dev/null' EXIT
+printf "[Interface]\nPrivateKey=%s\nAddress=%s\nMTU=1280\n\
+[Peer]\nPublicKey=%s\nEndpoint=%s:%s\nAllowedIPs=0.0.0.0/0\n\
+[Socks5]\nBindAddress=127.0.0.1:%s\n" \
+  "$PK" "$AD" "$PB" "$IP" "${EP##*:}" "$P" > "$T"
+$HOME/.local/bin/wireproxy -c "$T" >/dev/null 2>&1 & WP=$!
+for i in $(seq 1 20); do
+  kill -0 "$WP" 2>/dev/null || { echo "wireproxy crashed." >&2; exit 1; }
+  nc -z 127.0.0.1 "$P" 2>/dev/null && break || sleep 0.3
+done
+ALL_PROXY="socks5h://127.0.0.1:$P" $HOME/.local/bin/yt-dlp "$@"
 ```
 
 
