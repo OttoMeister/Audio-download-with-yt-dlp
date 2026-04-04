@@ -1,14 +1,12 @@
 # Surfshark WireGuard Setup Guide
-
 ## Download Surfshark WireGuard Configuration
 Install Extension: Install the "Get cookies.txt LOCALLY" extension in a Chromium-based browser.  
-Export Cookies: Log in to Surfshark WireGuard Setup and export the cookies as my.surfshark.com_cookies.txt to your Downloads folder.  
-Download Configuration: Run the following command to download the raw configuration data:  (Downloadfile is like 200kByte)
+Export Cookies: Log in to Surfshark WireGuard Setup and export the cookies as my.surfshark.com_cookies.txt to your Downloads folder. Run the following command to download the raw configuration data:  (Downloadfile is like 200kByte)
 ```shell
 curl -Lb ~/Downloads/my.surfshark.com_cookies.txt -A "Mozilla/5.0" -L -o ~/Downloads/surfshark_wireguard.conf https://my.surfshark.com/vpn/manual-setup/main/wireguard
 ```
-Generate Profiles: Save the script below as ~/Downloads/make-wg-conf-surfshark.sh, update the Address and PrivateKey fields, and execute it with bash ~/Downloads/make-wg-conf-surfshark.sh. Individual profiles will be created in ~/Downloads/wireguard/.
-
+# Generate Profiles
+Save the script below as ~/Downloads/make-wg-conf-surfshark.sh, update the Address and PrivateKey fields, and execute it with bash ~/Downloads/make-wg-conf-surfshark.sh. Individual profiles will be created in ~/Downloads/wireguard/.
 ```shell
 #!/bin/bash
 INPUT_FILE=$HOME/Downloads/surfshark_wireguard.conf
