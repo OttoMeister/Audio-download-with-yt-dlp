@@ -12,16 +12,17 @@ yt-dlp --update-to nightly
 ```
 ---
 ## 2. Get Playlist IDs
-
+Use the following command to extract playlist IDs or search maually in youtube.com
 ```shell
 echo "salsa 2025" \
-| parallel --ungroup --silent 'yt-dlp --playlist-end 10 --flat-playlist --simulate --match-filter "id~=^PL" --print id "https://www.youtube.com/results?search_query={= s/ /+/g =}&sp=EgIQAw=="'
+| parallel --ungroup --silent 'yt-dlp --playlist-end 5 --flat-playlist --simulate --match-filter "id~=^PL" --print id "https://www.youtube.com/results?search_query={= s/ /+/g =}&sp=EgIQAw=="'
 
 ```
-
-Output: `PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 ...`
-
----
+You will obtain a list like this:
+PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR   
+PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5    
+PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1    
+PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A 
 
 ## 3. Download — Manual Playlist List
 
