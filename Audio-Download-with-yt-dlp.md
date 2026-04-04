@@ -18,7 +18,7 @@ echo "salsa 2025" \
 | parallel --ungroup --silent 'yt-dlp --playlist-end 5 --flat-playlist --simulate --match-filter "id~=^PL" --print id "https://www.youtube.com/results?search_query={= s/ /+/g =}&sp=EgIQAw=="'
 
 ```
-You will obtain a list like this:
+You will obtain a list like this:   
 PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR   
 PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5    
 PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1    
