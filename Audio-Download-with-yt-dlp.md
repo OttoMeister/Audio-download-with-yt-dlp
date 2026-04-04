@@ -72,7 +72,7 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel id3v2 -s {}
 ## 7. Volume Normalization
 Use one only:
 ```shell
-# find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice parallel --eta --max-procs 20 loudgain -q -s e {}
+find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice parallel --eta --max-procs 20 loudgain -q -s e {}
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice parallel --eta --max-procs 20 mp3gain -r {}
 ```
 | Tool | Method | Notes |
