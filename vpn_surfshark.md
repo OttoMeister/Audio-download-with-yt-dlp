@@ -98,10 +98,10 @@ ALL_PROXY="socks5h://127.0.0.1:$P" $HOME/.local/bin/yt-dlp "$@"
 
 **1. Build download list**
 
-Search YouTube for playlists, then expand each to individual track commands:
+Search YouTube for playlists, then expand each to individual track commands (nice ionice -c 3 vpn-yt-dlp rand):
 
 ```bash
-echo "Banda Sinaloa" \
+echo "Salsa 2026" \
 | parallel --ungroup --silent \
   'yt-dlp --playlist-end 20 --flat-playlist --simulate \
    --match-filter "id~=^PL" --print id \
