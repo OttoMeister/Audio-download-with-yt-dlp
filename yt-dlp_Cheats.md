@@ -6,11 +6,8 @@ echo PLffX9yMQbaQhZbTRat79oh1kHhGHwv1Sn | parallel -d ' ' 'yt-dlp --ignore-error
 ```
 
 ## Use VPN to Download with yt-dlp
-
-
 Routes yt-dlp downloads through an isolated WireGuard network namespace and keeping the rest of the system's traffic unaffected.
 You can have muliple random conections at the same time. Perfect for use with gnu parallel.   
-
 Here is the script Move script to ~/.local/bin/vpn-yt-dlp and add execution "chmod a+x ~/.local/bin/vpn-yt-dlp". Use like this: "vpn-yt-dlp rand https://www.youtube.com/watch?v=1nnatyEvxQU" or "vpn-yt-dlp us-slc https://www.youtube.com/watch?v=1nnatyEvxQU".
 You cann use all the parameter as in yt-dlp just put rand or you VPN at first argument.
 ```shell
@@ -66,3 +63,60 @@ And then I download 2 times form very cuntry posible:
 ```shell
 cat do1.sh | shuf | parallel --max-procs 16 --ungroup --silent
 ```
+
+
+## Makes statistic by testing all VPN if they are blocked
+```shell
+#!/bin/bash
+VID="1nnatyEvxQU" # Test-Video ID
+CONF_DIR="/etc/wireguard"
+echo -e "ID\t\tSTATUS\t\tCOUNTRY\t\t\tMESSAGE"
+echo "----------------------------------------------------------------------"
+for f in $CONF_DIR/*.conf; do
+    V=$(basename -s .conf "$f")
+    CN=$(grep -m1 '"country":' "$f" | cut -d'"' -f4 || echo "Unknown")
+    P=$(shuf -i 2000-65000 -n 1)
+    while ss -ltn | grep -q ":$P "; do P=$(shuf -i 2000-65000 -n 1); done
+    C=$(sed 's/#.*//;/^[[:space:]]*$/d' "$f")
+    PK=$(grep -m1 '^PrivateKey' <<<"$C" | cut -d= -f2- | xargs)
+    AD=$(grep -m1 '^Address' <<<"$C" | cut -d= -f2- | xargs)
+    PB=$(grep -m1 '^PublicKey' <<<"$C" | cut -d= -f2- | xargs)
+    EP=$(grep -m1 '^Endpoint' <<<"$C" | cut -d= -f2- | xargs)
+    IP=$(getent hosts "${EP%:*}" | awk '{print $1; exit}')
+    T=$(mktemp)
+    printf "[Interface]\nPrivateKey=%s\nAddress=%s\nMTU=1280\n[Peer]\nPublicKey=%s\nEndpoint=%s:%s\nAllowedIPs=0.0.0.0/0\n[Socks5]\nBindAddress=127.0.0.1:%s\n" "$PK" "$AD" "$PB" "$IP" "${EP##*:}" "$P" > "$T"
+    $HOME/.local/bin/wireproxy -c "$T" >/dev/null 2>&1 & WP=$!
+    READY=0
+    for i in $(seq 1 10); do 
+        kill -0 "$WP" 2>/dev/null && nc -z 127.0.0.1 "$P" 2>/dev/null && READY=1 && break || sleep 0.2
+    done
+    if [ $READY -eq 1 ]; then
+        # Teste yt-dlp (nur Titel abfragen, kein Download)
+        OUT=$(ALL_PROXY="socks5h://127.0.0.1:$P" $HOME/.local/bin/yt-dlp --get-title --simulate "$VID" 2>&1)
+        RET=$?
+        if [ $RET -eq 0 ]; then
+            printf "%-15s \e[32mWORKING\e[0m\t%-20s\tOK\n" "$V" "$CN"
+        elif echo "$OUT" | grep -qi "confirm you’re not a bot"; then
+            printf "%-15s \e[31mBLOCKED\e[0m\t%-20s\tBot-Check\n" "$V" "$CN"
+        else
+            printf "%-15s \e[33mERROR\e[0m\t%-20s\tOther Error\n" "$V" "$CN"
+        fi
+    else
+        printf "%-15s \e[35mCRASHED\e[0m\t%-20s\tProxy Fail\n" "$V" "$CN"
+    fi
+    kill "$WP" 2>/dev/null && wait "$WP" 2>/dev/null || true
+    rm -f "$T"
+done
+```
+
+
+
+
+
+
+
+
+
+
+
+
