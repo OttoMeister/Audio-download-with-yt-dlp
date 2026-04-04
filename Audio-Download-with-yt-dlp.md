@@ -24,15 +24,14 @@ Output: `PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 .
 ## 3. Download — Manual Playlist List
 
 ```shell
-echo PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLFxMfmFGz8rFggUvGY8G_m1JIPQLKxPcq PLWEEt0QgQFIn8neNfE8EzRi1hsNn8CovL | tr ' ' '\n' | parallel --ungroup --silent 'yt-dlp --ignore-errors --no-warnings --print "https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s" --flat-playlist {}' | parallel --colsep ';' --ungroup --silent 'echo nice ionice -c 3 yt-dlp --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata {1} -o "$HOME/Downloads/CarPlaylist/{=2 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}/{=3 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}.mp3"' | nice ionice -c 3 parallel --max-procs 16 --bar --eta
+echo PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLFxMfmFGz8rFggUvGY8G_m1JIPQLKxPcq PLWEEt0QgQFIn8neNfE8EzRi1hsNn8CovL | tr ' ' '\n' /
+| parallel --ungroup --silent 'yt-dlp --ignore-errors --no-warnings --print "https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s" --flat-playlist {}' /
+| parallel --colsep ';' --ungroup --silent 'echo nice ionice -c 3 yt-dlp --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata {1} -o "$HOME/Downloads/CarPlaylist/{=2 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}/{=3 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}.mp3"' /
+| parallel --max-procs 16 --bar --eta
 ```
-
 ---
-
 ## 4. Download — Fully Automatic
-
 10 playlists → ~519 tracks → 434 files → 30h playback → 1.8 GB → ~9 min.
-
 ```shell
 echo "salsa 2025" /
 | parallel --ungroup --silent 'yt-dlp --playlist-end 10 --flat-playlist --simulate --match-filter "id~=^PL" --print id "https://www.youtube.com/results?search_query={= s/ /+/g =}&sp=EgIQAw=="' /
@@ -40,23 +39,19 @@ echo "salsa 2025" /
 | parallel --colsep ';' --ungroup --silent 'printf "nice ionice -c 3 yt-dlp --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata {1} -o \"$HOME/Downloads/CarPlaylist/{=2 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}/{=3 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}.mp3\"\n"' /
 | parallel --max-procs 16 --bar --eta
 ```
-
 ---
-
 ## 5. Download — With Loudness Normalization (slow)
-
 Applies `loudnorm` via ffmpeg post-processor:
-
 ```shell
-echo "salsa 2025" | parallel --ungroup --silent 'yt-dlp --playlist-end 10 --flat-playlist --simulate --match-filter "id~=^PL" --print id "https://www.youtube.com/results?search_query={= s/ /+/g =}&sp=EgIQAw=="' | parallel --ungroup --silent 'yt-dlp --ignore-errors --no-warnings --print "https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s" --flat-playlist {}' | parallel --colsep ';' --ungroup --silent 'printf "nice ionice -c 3 yt-dlp --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata --postprocessor-args \047ExtractAudio+ffmpeg:-filter:a loudnorm=I=-14:TP=-1.5:LRA=11\047 {1} -o \"$HOME/Downloads/CarPlaylist/{=2 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}/{=3 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}.mp3\"\n"' | parallel --max-procs 16 --bar --eta
+echo "salsa 2025" /
+| parallel --ungroup --silent 'yt-dlp --playlist-end 10 --flat-playlist --simulate --match-filter "id~=^PL" --print id "https://www.youtube.com/results?search_query={= s/ /+/g =}&sp=EgIQAw=="' /
+| parallel --ungroup --silent 'yt-dlp --ignore-errors --no-warnings --print "https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s" --flat-playlist {}' /
+| parallel --colsep ';' --ungroup --silent 'printf "nice ionice -c 3 yt-dlp --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata --postprocessor-args \047ExtractAudio+ffmpeg:-filter:a loudnorm=I=-14:TP=-1.5:LRA=11\047 {1} -o \"$HOME/Downloads/CarPlaylist/{=2 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}/{=3 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}.mp3\"\n"' /
+| parallel --max-procs 16 --bar --eta
 ```
-
 ---
-
 ## 6. Automatic Cleanup
-
 Cleans filenames, removes junk files, resizes cover art, strips unwanted metadata tags.
-
 ```shell
 detox -vr ~/Downloads/CarPlaylist
 find ~/Downloads/CarPlaylist -type f ! -name "*.mp3" -exec rm {} \;
@@ -73,38 +68,27 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel 'if ! exiftool -Pi
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel 'eyeD3 {} --remove-all-comments --user-text-frame="description:" --user-text-frame="purl:" --user-text-frame="synopsis:"'
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel id3v2 -s {}
 ```
-
 ---
-
 ## 7. Volume Normalization
-
 Use one only:
-
 ```shell
 # find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice parallel --eta --max-procs 20 loudgain -q -s e {}
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice parallel --eta --max-procs 20 mp3gain -r {}
 ```
-
 | Tool | Method | Notes |
 |---|---|---|
 | `loudgain -q -s e` | Writes ReplayGain tags only | Recommended, audio untouched |
 | `mp3gain -r` | Modifies audio data (lossless) | Better for older hardware |
-
 ---
-
 ## 8. Info & Stats
-
 ```shell
 tree -d ~/Downloads/CarPlaylist # show tree
 find ~/Downloads/CarPlaylist -type f -name "*.mp3"| wc -l | tr '\n' ' ' && echo mp3 files # counts the files
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" -exec mp3info -p "%S\n" {} + | awk '{ total += $1 } END { printf "Total runtime: %d hours %d minutes\n", total / 3600, (total % 3600) / 60 }' # runtime
 du -sh ~/Downloads/CarPlaylist # filesize together
 ```
-
 ---
-
 ## 9. Manual Cleanup
-
 - Remove folders with unwanted music
 - Shorten directory names
 - Copy to MP3 stick
