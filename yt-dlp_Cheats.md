@@ -45,16 +45,16 @@ yt-dlp -v --extract-audio --audio-format mp3 --audio-quality 5 --postprocessor-a
 ## Test 2: Gentle Normalization (Music)
 ```shell 
 yt-dlp -v --extract-audio --audio-format mp3 --audio-quality 5 --postprocessor-args "ffmpeg:-filter:a dynaudnorm=framelen=1000:gausssize=31:peak=0.95" -o "test_music_%(title)s.%(ext)s" https://www.youtube.com/watch?v=cKVUCgb9N5U
-## Test 3: Aggressive Normalization (Podcasts/Audiobooks)
 ```
+## Test 3: Aggressive Normalization (Podcasts/Audiobooks)
 ```shell 
 yt-dlp -v --extract-audio --audio-format mp3 --audio-quality 5 --postprocessor-args "ffmpeg:-filter:a dynaudnorm=framelen=500:gausssize=15:maxgain=20:targetrms=0.25" -o "test_podcast_%(title)s.%(ext)s" https://www.youtube.com/watch?v=cKVUCgb9N5U
 ```
-```shell 
 ## Test 4: Compression (Uniform Volume)
+```shell 
 yt-dlp -v --extract-audio --audio-format mp3 --audio-quality 5 --postprocessor-args "ffmpeg:-filter:a dynaudnorm=compress=10:peak=0.9:targetrms=0.2" -o "test_compression_%(title)s.%(ext)s" https://www.youtube.com/watch?v=cKVUCgb9N5U
-## Test 5: Gentle Normalization (Preserve Original Dynamics)
 ```
+## Test 5: Gentle Normalization (Preserve Original Dynamics)
 ```shell 
 yt-dlp -v --extract-audio --audio-format mp3 --audio-quality 5 --postprocessor-args "ffmpeg:-filter:a dynaudnorm=framelen=2000:gausssize=51:maxgain=5:peak=0.95" -o "test_gentle_%(title)s.%(ext)s" https://www.youtube.com/watch?v=cKVUCgb9N5U
 ```
