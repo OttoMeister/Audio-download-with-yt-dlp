@@ -91,7 +91,7 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice parallel --eta --max-p
 ## 8. Info & Stats
 
 ```shell
-tree -d ~/Downloads/CarPlaylist # schow tree
+tree -d ~/Downloads/CarPlaylist # show tree
 find ~/Downloads/CarPlaylist -type f -name "*.mp3"| wc -l | tr '\n' ' ' && echo mp3 files # counts the files
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" -exec mp3info -p "%S\n" {} + | awk '{ total += $1 } END { printf "Total runtime: %d hours %d minutes\n", total / 3600, (total % 3600) / 60 }' # runtime
 du -sh ~/Downloads/CarPlaylist # filesize together
