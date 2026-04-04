@@ -1,5 +1,55 @@
 
 ## Use VPN to Download with yt-dlp
+
+
+# vpn-yt-dlp
+
+Routes `yt-dlp` downloads through an isolated WireGuard SOCKS5 proxy via `wireproxy` — leaving all other system traffic untouched. Supports multiple simultaneous connections; pairs well with `gnu parallel`.
+
+---
+
+## Install
+
+```bash
+cp vpn-yt-dlp ~/.local/bin/ && chmod a+x ~/.local/bin/vpn-yt-dlp
+```
+
+**Requires:** `wireproxy`, `yt-dlp`, `netcat` — WireGuard configs in `/etc/wireguard/*.conf`
+
+---
+
+## Usage
+
+```bash
+vpn-yt-dlp <vpn|mode> [yt-dlp args...]
+```
+
+| Mode | Description |
+|---|---|
+| `rand` | Random config from all available |
+| `rand-eu` `rand-ap` `rand-am` `rand-us` `rand-ea` | Random from that region |
+| `us-slc` | Specific named config |
+
+All standard `yt-dlp` flags pass through unchanged.
+
+---
+
+## Examples
+
+```bash
+# Single download via random VPN
+vpn-yt-dlp rand https://www.youtube.com/watch?v=1nnatyEvxQU
+
+# Specific server
+vpn-yt-dlp us-slc https://www.youtube.com/watch?v=1nnatyEvxQU
+```
+
+---
+
+
+
+
+
 Routes yt-dlp downloads through an isolated WireGuard network namespace and keeping the rest of the system's traffic unaffected.
 You can have muliple random conections at the same time. Perfect for use with gnu parallel.   
 Here is the script Move script to ~/.local/bin/vpn-yt-dlp and add execution "chmod a+x ~/.local/bin/vpn-yt-dlp". Use like this: "vpn-yt-dlp rand https://www.youtube.com/watch?v=1nnatyEvxQU" or "vpn-yt-dlp us-slc https://www.youtube.com/watch?v=1nnatyEvxQU".
