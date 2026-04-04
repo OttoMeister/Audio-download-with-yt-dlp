@@ -31,7 +31,7 @@ filename=$(echo $conn_name | cut -c 1-6).conf
 echo "$line" | jq -r 'to_entries | .[] | if .key == "info" then .value[] | to_entries | .[] | if .key == "entry" then "\"info\":\"entry\":\"value\":\(.value.value | @json)" else "\"info\":\"\(.key)\":\(.value | @json)" end else "\"\(.key)\":\(.value | @json)" end' | sed 's/^/# /' > $WG_DIR/$filename
 cat <<EOF >> $WG_DIR/$filename
 [Interface]
-Address = <insert_your_ip_addewss_here>
+Address = <insert_your_ip_address_here>
 PrivateKey = <insert_your_private_key_here>
 DNS = 1.1.1.1, 8.8.8.8
 [Peer]
