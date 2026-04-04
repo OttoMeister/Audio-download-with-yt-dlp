@@ -29,4 +29,27 @@ Endpoint = $conn_name:51820
 EOF
 done
 ```
+## Check first WireGuard is working: 
+```shell
+sudo -i 
+ls /etc/wireguard/*.conf | xargs -n 1 basename -s .conf | tr '\n' ' '; echo
+# ar-bua at-vie ch-zur co-bog de-ber de-fra ec-uio es-mad fr-par ie-dub it-mil jp-tok kr-seo mx-qro pa-pac pe-lim pt-lis py-asu se-sto tr-ist tw-tai us-bos us-chi us-dal us-mia us-nyc us-slc ve-car
+# start - status - stop
+wg-quick up ch-zur
+wg
+ip a show ch-zur
+wg-quick down ch-zur
+```
+## Debugg
+```shell
+journalctl -xe
+curl ifconfig.me; echo
+ip a | sed -n '/scope global/ { /-/ s/.* //p }'
+```
+Check website "https://browserleaks.com/ip"
+
+
+
+
+
 
