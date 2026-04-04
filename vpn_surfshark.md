@@ -150,7 +150,7 @@ Exit states: `WORKING` · `BLOCKED` (bot-check) · `ERROR` (other) · `CRASHED` 
 
 ```shell
 #!/bin/bash
-VID="1nnatyEvxQU" # Test-Video ID
+VID="1nnatyEvxQU" 
 CONF_DIR="/etc/wireguard"
 echo -e "ID\t\tSTATUS\t\tCOUNTRY\t\t\tMESSAGE"
 echo "----------------------------------------------------------------------"
