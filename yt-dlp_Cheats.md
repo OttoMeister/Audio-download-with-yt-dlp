@@ -16,34 +16,45 @@ You cann use all the parameter as in yt-dlp just put rand or you VPN at first ar
 ```shell
 #!/bin/bash
 set -e
-[[ -z "$1" ]] && { echo "Usage: $0 <vpn|rand> [yt-dlp args...]" >&2; exit 1; }
-A=($(ls /etc/wireguard/*.conf 2>/dev/null | xargs -n1 basename -s .conf))
-[[ "$1" == "rand" ]] && V="${A[$RANDOM % ${#A[@]}]}" || \
-  { V="$1"; [[ -f "/etc/wireguard/$V.conf" ]] || { echo "Not found: $V" >&2; exit 1; }; }
+if [[ $# -lt 2 ]]; then
+echo "Usage: $0 <mode|config> <yt-dlp args>"
+echo "rand: all (random)"
+for r in eu:EU ap:AP am:AM us:AM ea:EA; do
+case ${r%:*} in
+us) L=$(grep -l '"regionCode":"AM"' /etc/wireguard/*.conf | grep "/us-" | xargs -n1 basename -s .conf | tr '\n' ' ');;
+am) L=$(grep -l '"regionCode":"AM"' /etc/wireguard/*.conf | grep -v "/us-" | xargs -n1 basename -s .conf | tr '\n' ' ');;
+*) L=$(grep -l "\"regionCode\":\"${r#*:}\"" /etc/wireguard/*.conf | xargs -n1 basename -s .conf | tr '\n' ' ');;
+esac
+echo "rand-${r%:*}: $L"
+done
+exit 1
+fi
+case "$1" in
+rand) A=($(ls /etc/wireguard/*.conf | xargs -n1 basename -s .conf));;
+rand-eu) A=($(grep -l '"regionCode":"EU"' /etc/wireguard/*.conf | xargs -n1 basename -s .conf));;
+rand-ap) A=($(grep -l '"regionCode":"AP"' /etc/wireguard/*.conf | xargs -n1 basename -s .conf));;
+rand-am) A=($(grep -l '"regionCode":"AM"' /etc/wireguard/*.conf | grep -v "/us-" | xargs -n1 basename -s .conf));;
+rand-us) A=($(grep -l '"regionCode":"AM"' /etc/wireguard/*.conf | grep "/us-" | xargs -n1 basename -s .conf));;
+rand-ea) A=($(grep -l '"regionCode":"EA"' /etc/wireguard/*.conf | xargs -n1 basename -s .conf));;
+*) [[ -f "/etc/wireguard/$1.conf" ]] && V="$1" || exit 1;;
+esac
+[[ -z "$V" ]] && { [[ ${#A[@]} -eq 0 ]] && exit 1; V="${A[$RANDOM % ${#A[@]}]}"; }
 shift
 echo "VPN: $V" >&2
 P=$(shuf -i 2000-65000 -n 1)
 while ss -ltn | grep -q ":$P "; do P=$(shuf -i 2000-65000 -n 1); done
 C=$(sed 's/#.*//;/^[[:space:]]*$/d' "/etc/wireguard/$V.conf")
-PK=$(grep -m1 '^PrivateKey' <<< "$C" | cut -d= -f2- | xargs)
-AD=$(grep -m1 '^Address'    <<< "$C" | cut -d= -f2- | xargs)
-PB=$(grep -m1 '^PublicKey'  <<< "$C" | cut -d= -f2- | xargs)
-EP=$(grep -m1 '^Endpoint'   <<< "$C" | cut -d= -f2- | xargs)
-[[ -z "$PK" || -z "$AD" || -z "$PB" || -z "$EP" ]] && \
-  { echo "Incomplete config." >&2; exit 1; }
+PK=$(grep -m1 '^PrivateKey' <<<"$C" | cut -d= -f2- | xargs)
+AD=$(grep -m1 '^Address' <<<"$C" | cut -d= -f2- | xargs)
+PB=$(grep -m1 '^PublicKey' <<<"$C" | cut -d= -f2- | xargs)
+EP=$(grep -m1 '^Endpoint' <<<"$C" | cut -d= -f2- | xargs)
+[[ -z "$PK" || -z "$AD" || -z "$PB" || -z "$EP" ]] && exit 1
 IP=$(getent hosts "${EP%:*}" | awk '{print $1; exit}')
-[[ -z "$IP" ]] && { echo "Cannot resolve hostname: ${EP%:*}" >&2; exit 1; }
 T=$(mktemp)
 trap 'rm -f "$T"; [[ -n "$WP" ]] && kill "$WP" 2>/dev/null' EXIT
-printf "[Interface]\nPrivateKey=%s\nAddress=%s\nMTU=1280\n\
-[Peer]\nPublicKey=%s\nEndpoint=%s:%s\nAllowedIPs=0.0.0.0/0\n\
-[Socks5]\nBindAddress=127.0.0.1:%s\n" \
-  "$PK" "$AD" "$PB" "$IP" "${EP##*:}" "$P" > "$T"
+printf "[Interface]\nPrivateKey=%s\nAddress=%s\nMTU=1280\n[Peer]\nPublicKey=%s\nEndpoint=%s:%s\nAllowedIPs=0.0.0.0/0\n[Socks5]\nBindAddress=127.0.0.1:%s\n" "$PK" "$AD" "$PB" "$IP" "${EP##*:}" "$P" > "$T"
 $HOME/.local/bin/wireproxy -c "$T" >/dev/null 2>&1 & WP=$!
-for i in $(seq 1 20); do
-  kill -0 "$WP" 2>/dev/null || { echo "wireproxy crashed." >&2; exit 1; }
-  nc -z 127.0.0.1 "$P" 2>/dev/null && break || sleep 0.3
-done
+for i in $(seq 1 20); do kill -0 "$WP" 2>/dev/null && nc -z 127.0.0.1 "$P" 2>/dev/null && break || { [[ $i -eq 20 ]] && exit 1 || sleep 0.3; }; done
 ALL_PROXY="socks5h://127.0.0.1:$P" $HOME/.local/bin/yt-dlp "$@"
 ```
 For exampe I produce a download list with "nice ionice -c 3 vpn-yt-dlp rand"
