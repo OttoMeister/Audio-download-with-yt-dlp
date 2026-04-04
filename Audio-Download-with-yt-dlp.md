@@ -1,5 +1,5 @@
 # Efficient Parallel MP3 Playlist Download
-True parallel downloads with `yt-dlp` preserving playlist name as directory and full metadata. ~20× speedup — ~1,000 songs in 15 min.
+### True parallel downloads with `yt-dlp` preserving playlist name as directory and full metadata. ~20× speedup — ~1,000 songs in 15 min.
 ---
 ## 1. Install Tools
 ```shell
