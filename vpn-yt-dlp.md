@@ -5,7 +5,7 @@ Routes `yt-dlp` downloads through an isolated WireGuard SOCKS5 proxy via `wirepr
 ```bash
 cp vpn-yt-dlp ~/.local/bin/ && chmod a+x ~/.local/bin/vpn-yt-dlp
 ```
-**Requires:** `wireproxy`, `yt-dlp`, `netcat` — WireGuard configs in `/etc/wireguard/*.conf`
+## here is the bash script:
 ---
 ```bash
 #!/bin/bash
