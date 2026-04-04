@@ -1,5 +1,5 @@
 
-## Use VPN to Download with yt-dlp
+## Use VPN to Download with yt-dlp without root
 
 
 # vpn-yt-dlp
@@ -46,14 +46,6 @@ vpn-yt-dlp us-slc https://www.youtube.com/watch?v=1nnatyEvxQU
 
 ---
 
-
-
-
-
-Routes yt-dlp downloads through an isolated WireGuard network namespace and keeping the rest of the system's traffic unaffected.
-You can have muliple random conections at the same time. Perfect for use with gnu parallel.   
-Here is the script Move script to ~/.local/bin/vpn-yt-dlp and add execution "chmod a+x ~/.local/bin/vpn-yt-dlp". Use like this: "vpn-yt-dlp rand https://www.youtube.com/watch?v=1nnatyEvxQU" or "vpn-yt-dlp us-slc https://www.youtube.com/watch?v=1nnatyEvxQU".
-You cann use all the parameter as in yt-dlp just put rand or you VPN at first argument.
 ```shell
 #!/bin/bash
 set -e
@@ -99,17 +91,63 @@ $HOME/.local/bin/wireproxy -c "$T" >/dev/null 2>&1 & WP=$!
 for i in $(seq 1 20); do kill -0 "$WP" 2>/dev/null && nc -z 127.0.0.1 "$P" 2>/dev/null && break || { [[ $i -eq 20 ]] && exit 1 || sleep 0.3; }; done
 ALL_PROXY="socks5h://127.0.0.1:$P" $HOME/.local/bin/yt-dlp "$@"
 ```
-For exampe I produce a download list with "nice ionice -c 3 vpn-yt-dlp rand"
-```shell
-echo "Banda Sinaloa" | parallel --ungroup --silent 'yt-dlp --playlist-end 20 --flat-playlist --simulate --match-filter "id~=^PL" --print id "https://www.youtube.com/results?search_query={= s/ /+/g =}&sp=EgIQAw=="' | parallel --ungroup --silent 'yt-dlp --ignore-errors --no-warnings --print "https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s" --flat-playlist {}' | parallel --colsep ';' --ungroup --silent 'printf "nice ionice -c 3 vpn-yt-dlp rand --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata {1} -o \"$HOME/Downloads/CarPlaylist8/{=2 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}/{=3 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}.mp3\"\n"'  >do1.sh
+
+---
+
+## Batch Download (Parallel)
+
+**1. Build download list**
+
+Search YouTube for playlists, then expand each to individual track commands:
+
+```bash
+echo "Banda Sinaloa" \
+| parallel --ungroup --silent \
+  'yt-dlp --playlist-end 20 --flat-playlist --simulate \
+   --match-filter "id~=^PL" --print id \
+   "https://www.youtube.com/results?search_query={= s/ /+/g =}&sp=EgIQAw=="' \
+| parallel --ungroup --silent \
+  'yt-dlp --ignore-errors --no-warnings \
+   --print "https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s" \
+   --flat-playlist {}' \
+| parallel --colsep ';' --ungroup --silent \
+  'printf "nice ionice -c 3 vpn-yt-dlp rand \
+   --extract-audio --audio-format mp3 --audio-quality 5 \
+   --embed-thumbnail --embed-metadata {1} \
+   -o \"$HOME/Downloads/CarPlaylist8/{=2 s/[^a-zA-Z0-9 .-]//g =}/{=3 s/[^a-zA-Z0-9 .-]//g =}.mp3\"\n"' \
+> do1.sh
 ```
-And then I download 2 times form very cuntry posible:
-```shell
+
+**2. Run — 16 parallel workers, shuffled across all regions**
+
+```bash
 cat do1.sh | shuf | parallel --max-procs 16 --ungroup --silent
 ```
 
+---
 
-## Makes statistic by testing all VPN if they are blocked
+## VPN Status Check
+
+Tests every config against a sample video and reports which servers are blocked:
+
+```bash
+vpn-check-status.sh
+```
+
+```
+ID              STATUS          COUNTRY              MESSAGE
+----------------------------------------------------------------------
+us-slc          WORKING         United States        OK
+de-fra          BLOCKED         Germany              Bot-Check
+nl-ams          ERROR           Netherlands          Other Error
+sg-sin          CRASHED         Singapore            Proxy Fail
+```
+
+Exit states: `WORKING` · `BLOCKED` (bot-check) · `ERROR` (other) · `CRASHED` (proxy failed to start)
+
+
+
+
 ```shell
 #!/bin/bash
 VID="1nnatyEvxQU" # Test-Video ID
