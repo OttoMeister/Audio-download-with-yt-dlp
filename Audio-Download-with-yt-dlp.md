@@ -22,7 +22,8 @@ You will obtain a list like this:
 PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR   
 PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5    
 PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1    
-PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A 
+PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A   
+PLWEEt0QgQFIn8neNfE8EzRi1hsNn8CovL
 
 ## 3. Download — Manual Playlist List
 
