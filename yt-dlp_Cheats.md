@@ -40,7 +40,8 @@ rand-ea) A=($(grep -l '"regionCode":"EA"' /etc/wireguard/*.conf | xargs -n1 base
 esac
 [[ -z "$V" ]] && { [[ ${#A[@]} -eq 0 ]] && exit 1; V="${A[$RANDOM % ${#A[@]}]}"; }
 shift
-echo "VPN: $V" >&2
+CN=$(grep -m1 '"country":' "/etc/wireguard/$V.conf" | cut -d'"' -f4)
+echo "VPN: $V - $CN" >&2
 P=$(shuf -i 2000-65000 -n 1)
 while ss -ltn | grep -q ":$P "; do P=$(shuf -i 2000-65000 -n 1); done
 C=$(sed 's/#.*//;/^[[:space:]]*$/d' "/etc/wireguard/$V.conf")
