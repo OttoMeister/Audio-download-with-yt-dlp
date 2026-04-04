@@ -6,7 +6,7 @@
 ```bash
 cp vpn-yt-dlp ~/.local/bin/ && chmod a+x ~/.local/bin/vpn-yt-dlp
 ```
-## here is the bash script:
+## The bash script:
 ---
 ```bash
 #!/bin/bash
