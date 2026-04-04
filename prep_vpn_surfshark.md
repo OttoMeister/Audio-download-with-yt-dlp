@@ -51,11 +51,11 @@ wg-quick down ch-zur
 journalctl -xe
 curl ifconfig.me; echo
 ip a | sed -n '/scope global/ { /-/ s/.* //p }'
+xdg-open "https://browserleaks.com/ip"&
 ```
-Check website "https://browserleaks.com/ip"
-
-
-
-
-
+## Show all wireguard regions
+Here is the complete block of commands to display the labels followed by the list of corresponding files for each region:
+```shell
+echo; echo '"regionCode":"EU" = Europe'; grep -l '"regionCode":"EU"' /etc/wireguard/*.conf | xargs -n 1 basename -s .conf | tr '\n' ' '; echo; echo -e '\n"regionCode":"AP" = Asia Pacific'; grep -l '"regionCode":"AP"' /etc/wireguard/*.conf | xargs -n 1 basename -s .conf | tr '\n' ' '; echo; echo -e '\n"regionCode":"AM" = Americas'; grep -l '"regionCode":"AM"' /etc/wireguard/*.conf | xargs -n 1 basename -s .conf | tr '\n' ' '; echo; echo -e '\n"regionCode":"EA" = Europe & Africa / Middle East'; grep -l '"regionCode":"EA"' /etc/wireguard/*.conf | xargs -n 1 basename -s .conf | tr '\n' ' '; echo; echo
+```
 
