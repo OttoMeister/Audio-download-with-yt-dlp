@@ -29,6 +29,12 @@ Endpoint = $conn_name:51820
 EOF
 done
 ```
+## move to global wireguard config: 
+```shell
+sudo mv ~/Downloads/wireguard/*.conf /etc/wireguard
+sudo chown root:root /etc/wireguard/*.conf
+sudo chmod 644 /etc/wireguard/*.conf
+```
 ## Check first WireGuard is working: 
 ```shell
 sudo -i 
