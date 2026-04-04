@@ -33,29 +33,18 @@ echo ZIskmUYZQfo nCNfE2Fcmms _XC1ys67P1M ZFyCEtSiNaA tQ-6uEN9WYM 3CQU1bC8mCM ZbH
 ```
 ---
 # The Dynamic Audio Normalizer in ffmpeg has several useful parameters for fine-tuning
-
-## Test 0: Without Normalization
 ```shell 
+# Test 0: Without Normalization
 yt-dlp -v --extract-audio --audio-format mp3 --audio-quality 5 -o "test_original_%(title)s.%(ext)s" https://www.youtube.com/watch?v=cKVUCgb9N5U
-```
-## Test 1: Basic Normalization
-```shell 
+# Test 1: Basic Normalization
 yt-dlp -v --extract-audio --audio-format mp3 --audio-quality 5 --postprocessor-args "ffmpeg:-filter:a dynaudnorm" -o "test_basic_%(title)s.%(ext)s" https://www.youtube.com/watch?v=cKVUCgb9N5U
-```
-## Test 2: Gentle Normalization (Music)
-```shell 
+# Test 2: Gentle Normalization (Music)
 yt-dlp -v --extract-audio --audio-format mp3 --audio-quality 5 --postprocessor-args "ffmpeg:-filter:a dynaudnorm=framelen=1000:gausssize=31:peak=0.95" -o "test_music_%(title)s.%(ext)s" https://www.youtube.com/watch?v=cKVUCgb9N5U
-```
-## Test 3: Aggressive Normalization (Podcasts/Audiobooks)
-```shell 
+# Test 3: Aggressive Normalization (Podcasts/Audiobooks)
 yt-dlp -v --extract-audio --audio-format mp3 --audio-quality 5 --postprocessor-args "ffmpeg:-filter:a dynaudnorm=framelen=500:gausssize=15:maxgain=20:targetrms=0.25" -o "test_podcast_%(title)s.%(ext)s" https://www.youtube.com/watch?v=cKVUCgb9N5U
-```
-## Test 4: Compression (Uniform Volume)
-```shell 
+# Test 4: Compression (Uniform Volume)
 yt-dlp -v --extract-audio --audio-format mp3 --audio-quality 5 --postprocessor-args "ffmpeg:-filter:a dynaudnorm=compress=10:peak=0.9:targetrms=0.2" -o "test_compression_%(title)s.%(ext)s" https://www.youtube.com/watch?v=cKVUCgb9N5U
-```
-## Test 5: Gentle Normalization (Preserve Original Dynamics)
-```shell 
+# Test 5: Gentle Normalization (Preserve Original Dynamics)
 yt-dlp -v --extract-audio --audio-format mp3 --audio-quality 5 --postprocessor-args "ffmpeg:-filter:a dynaudnorm=framelen=2000:gausssize=51:maxgain=5:peak=0.95" -o "test_gentle_%(title)s.%(ext)s" https://www.youtube.com/watch?v=cKVUCgb9N5U
 ```
 ---
