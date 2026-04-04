@@ -28,7 +28,8 @@ PLWEEt0QgQFIn8neNfE8EzRi1hsNn8CovL
 ## 3. Download — Manual Playlist List
 
 ```shell
-echo PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLFxMfmFGz8rFggUvGY8G_m1JIPQLKxPcq PLWEEt0QgQFIn8neNfE8EzRi1hsNn8CovL | tr ' ' '\n' \
+echo PLD0kvNhPZ444CoLU7Z2ri3nbMn6uVDscR PLGx8vKOKHzlGkJlSeHL4HC7fWjLki_mH5 PLJzWprC5a8Ad49KnLX6_FgX0VAsp8J-h1 PL4U35lg0iKyZGrx9YITNqfgBwlah7Rm8A PLXl9q53Jut6k_WLWfIK3zv-3kwnBnA5fm PLFxMfmFGz8rFggUvGY8G_m1JIPQLKxPcq PLWEEt0QgQFIn8neNfE8EzRi1hsNn8CovL \
+| tr ' ' '\n' \
 | parallel --ungroup --silent 'yt-dlp --ignore-errors --no-warnings --print "https://www.youtube.com/watch?v=%(id)s;%(playlist)s;%(title)s" --flat-playlist {}' \
 | parallel --colsep ';' --ungroup --silent 'echo nice ionice -c 3 yt-dlp --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata {1} -o "$HOME/Downloads/CarPlaylist/{=2 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}/{=3 s/[^a-zA-Z0-9 .-]//g; s/^\s+|\s+$//g =}.mp3"' \
 | parallel --max-procs 16 --bar --eta
