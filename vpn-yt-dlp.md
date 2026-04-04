@@ -1,4 +1,5 @@
 # vpn-yt-dlp
+
 Routes `yt-dlp` downloads through an isolated WireGuard SOCKS5 proxy via `wireproxy` — leaving all other system traffic untouched. Supports multiple simultaneous connections; pairs well with `gnu parallel`.
 ---
 ## Install
