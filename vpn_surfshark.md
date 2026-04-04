@@ -75,6 +75,7 @@ wg-quick down ch-zur
 journalctl -xe
 curl ifconfig.me; echo
 ip a | sed -n '/scope global/ { /-/ s/.* //p }'
+curl -s --max-time 5 https://api.ipify.org || echo "unknown"; echo
 xdg-open "https://browserleaks.com/ip"&
 ```
 
