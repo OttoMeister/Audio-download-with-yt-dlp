@@ -60,11 +60,10 @@ sudo chmod 644 /etc/wireguard/*.conf
 sudo -i 
 ls /etc/wireguard/*.conf | xargs -n 1 basename -s .conf | tr '\n' ' '; echo
 # ar-bua at-vie ch-zur co-bog de-ber de-fra ec-uio es-mad fr-par ie-dub it-mil jp-tok kr-seo mx-qro pa-pac pe-lim pt-lis py-asu se-sto tr-ist tw-tai us-bos us-chi us-dal us-mia us-nyc us-slc ve-car
-# start - status - stop
-wg-quick up ch-zur
-wg
-ip a show ch-zur
-wg-quick down ch-zur
+wg-quick up ch-zur    # start 
+wg                    # status
+ip a show ch-zur      # status
+wg-quick down ch-zur  # stop
 ```
 
 ---
