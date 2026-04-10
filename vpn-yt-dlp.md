@@ -10,48 +10,31 @@ cp vpn-yt-dlp ~/.local/bin/ && chmod a+x ~/.local/bin/vpn-yt-dlp
 ---
 ```bash
 #!/bin/bash
-set -e
-if [[ $# -lt 2 ]]; then
-echo "Usage: $0 <mode|config> <yt-dlp args>"
-echo "rand: all (random)"
-for r in eu:EU ap:AP am:AM us:AM ea:EA; do
-case ${r%:*} in
-us) L=$(grep -l '"regionCode":"AM"' /etc/wireguard/*.conf | grep "/us-" | xargs -n1 basename -s .conf | tr '\n' ' ');;
-am) L=$(grep -l '"regionCode":"AM"' /etc/wireguard/*.conf | grep -v "/us-" | xargs -n1 basename -s .conf | tr '\n' ' ');;
-*) L=$(grep -l "\"regionCode\":\"${r#*:}\"" /etc/wireguard/*.conf | xargs -n1 basename -s .conf | tr '\n' ' ');;
-esac
-echo "rand-${r%:*}: $L"
-done
-exit 1
-fi
-case "$1" in
-rand) A=($(ls /etc/wireguard/*.conf | xargs -n1 basename -s .conf));;
-rand-eu) A=($(grep -l '"regionCode":"EU"' /etc/wireguard/*.conf | xargs -n1 basename -s .conf));;
-rand-ap) A=($(grep -l '"regionCode":"AP"' /etc/wireguard/*.conf | xargs -n1 basename -s .conf));;
-rand-am) A=($(grep -l '"regionCode":"AM"' /etc/wireguard/*.conf | grep -v "/us-" | xargs -n1 basename -s .conf));;
-rand-us) A=($(grep -l '"regionCode":"AM"' /etc/wireguard/*.conf | grep "/us-" | xargs -n1 basename -s .conf));;
-rand-ea) A=($(grep -l '"regionCode":"EA"' /etc/wireguard/*.conf | xargs -n1 basename -s .conf));;
-*) [[ -f "/etc/wireguard/$1.conf" ]] && V="$1" || exit 1;;
-esac
-[[ -z "$V" ]] && { [[ ${#A[@]} -eq 0 ]] && exit 1; V="${A[$RANDOM % ${#A[@]}]}"; }
-shift
-CN=$(grep -m1 '"country":' "/etc/wireguard/$V.conf" | cut -d'"' -f4)
-echo "VPN: $V - $CN" >&2
-P=$(shuf -i 2000-65000 -n 1)
-while ss -ltn | grep -q ":$P "; do P=$(shuf -i 2000-65000 -n 1); done
-C=$(sed 's/#.*//;/^[[:space:]]*$/d' "/etc/wireguard/$V.conf")
-PK=$(grep -m1 '^PrivateKey' <<<"$C" | cut -d= -f2- | xargs)
-AD=$(grep -m1 '^Address' <<<"$C" | cut -d= -f2- | xargs)
-PB=$(grep -m1 '^PublicKey' <<<"$C" | cut -d= -f2- | xargs)
-EP=$(grep -m1 '^Endpoint' <<<"$C" | cut -d= -f2- | xargs)
-[[ -z "$PK" || -z "$AD" || -z "$PB" || -z "$EP" ]] && exit 1
-IP=$(getent hosts "${EP%:*}" | awk '{print $1; exit}')
-T=$(mktemp)
-trap 'rm -f "$T"; [[ -n "$WP" ]] && kill "$WP" 2>/dev/null' EXIT
-printf "[Interface]\nPrivateKey=%s\nAddress=%s\nMTU=1280\n[Peer]\nPublicKey=%s\nEndpoint=%s:%s\nAllowedIPs=0.0.0.0/0\n[Socks5]\nBindAddress=127.0.0.1:%s\n" "$PK" "$AD" "$PB" "$IP" "${EP##*:}" "$P" > "$T"
-$HOME/.local/bin/wireproxy -c "$T" >/dev/null 2>&1 & WP=$!
-for i in $(seq 1 20); do kill -0 "$WP" 2>/dev/null && nc -z 127.0.0.1 "$P" 2>/dev/null && break || { [[ $i -eq 20 ]] && exit 1 || sleep 0.3; }; done
-ALL_PROXY="socks5h://127.0.0.1:$P" $HOME/.local/bin/yt-dlp "$@"
+set -e; cleanup() { rm -f "$T"; [[ -n "$WP" ]] && kill "$WP" 2>/dev/null && wait 2>/dev/null; }
+trap cleanup EXIT INT TERM HUP; W=/etc/wireguard; B() { xargs -n1 basename -s .conf | tr '\n' ' '; }
+B2() { xargs -n1 basename -s .conf; }; if [[ $# -lt 2 ]]; then echo "Usage: $0 <mode>; rand: all";
+for r in eu:EU ap:AP am:AM us:AM ea:EA; do case ${r%:*} in us) L=$(grep -l '"regionCode":"AM"' $W/* |
+grep "/us-" | B);; am) L=$(grep -l '"regionCode":"AM"' $W/* | grep -v "/us-" | B);; *) C="${r#*:}";
+L=$(grep -l "\"regionCode\":\"$C\"" $W/* | B);; esac; echo "rand-${r%:*}: $L"; done; exit 1; fi
+case "$1" in rand) A=($(ls $W/*.conf | B2));; rand-eu) A=($(grep -l '"regionCode":"EU"' $W/* | B2));;
+rand-ap) A=($(grep -l '"regionCode":"AP"' $W/* | B2));; rand-am) A=($(grep -l '"regionCode":"AM"' $W/* |
+grep -v "/us-" | B2));; rand-us) A=($(grep -l '"regionCode":"AM"' $W/* | grep "/us-" | B2));;
+rand-ea) A=($(grep -l '"regionCode":"EA"' $W/* | B2));; *) [[ -f "$W/$1.conf" ]] && V="$1" || exit 1;; esac
+if [[ -z "$V" ]]; then [[ ${#A[@]} -eq 0 ]] && exit 1; for ((i=0; i<100; i++)); do N=${#A[@]};
+TRY_V="${A[$RANDOM % $N]}"; exec 9>"/tmp/vpn_lock_$TRY_V"; if flock -n 9; then V="$TRY_V"; break; fi;
+done; [[ -z "$V" ]] && { echo "Error: Busy" >&2; exit 1; }; else exec 9>"/tmp/vpn_lock_$V"; flock 9; fi
+shift; CN=$(grep -m1 '"country":' "$W/$V.conf" | cut -d'"' -f4); echo "VPN: $V - $CN" >&2; P=0;
+if [[ -n "$PARALLEL_JOB_SLOT" ]]; then P=$(( 20000 + PARALLEL_JOB_SLOT )); else true;
+P=$(shuf -i 2000-65000 -n1); while ss -ltn | grep -q ":$P "; do P=$(shuf -i 2000-65000 -n1); done; fi
+C=$(sed 's/#.*//;/^[[:space:]]*$/d' "$W/$V.conf"); G() { grep -m1 "^$1" <<<"$C"|cut -d= -f2-|xargs; }
+PK=$(G PrivateKey); AD=$(G Address); PB=$(G PublicKey); EP=$(G Endpoint); T=$(mktemp); E2="${EP%:*}"
+if [[ -z "$PK" || -z "$AD" || -z "$PB" || -z "$EP" ]]; then echo "Err" >&2; exit 1; fi;
+IP=$(getent hosts "$E2" | awk '{print $1;exit}'); P1="[Interface]\nPrivateKey=%s\nAddress=%s\nMTU=1280\n"
+printf "$P1[Peer]\nPublicKey=%s\n" "$PK" "$AD" "$PB" >"$T"; EP2="${EP##*:}"; echo "Wait..." >&2;
+printf "Endpoint=%s:%s\nAllowedIPs=0.0.0.0/0\n[Socks5]\nBindAddress=127.0.0.1:%s\n" "$IP" "$EP2" "$P" >>"$T"
+$HOME/.local/bin/wireproxy -c "$T" >/dev/null 2>&1 & WP=$!; for i in $(seq 1 20); do
+kill -0 "$WP" 2>/dev/null && nc -z 127.0.0.1 "$P" 2>/dev/null && break || { [[ $i -eq 20 ]] && exit 1 || sleep 0.3; }
+done; ALL_PROXY="socks5h://127.0.0.1:$P" $HOME/.local/bin/yt-dlp "$@"; echo "Done"; exit 0;
 ```
 ## Usage
 
