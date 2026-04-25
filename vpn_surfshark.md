@@ -10,6 +10,7 @@ curl -Lb ~/Downloads/my.surfshark.com_cookies.txt -A "Mozilla/5.0" -L -o ~/Downl
 ## 2. Generate Per-Server Profiles
 Save as `~/Downloads/make-wg-conf-surfshark.sh`.  
 Edit `Address` and `PrivateKey`, then run `bash ~/Downloads/make-wg-conf-surfshark.sh`.  
+Make a manual dwnload of a wireguard config and copy ip adress from there.   
 Output: individual `.conf` files in `~/Downloads/wireguard/`.
 ```shell
 #!/bin/bash
@@ -23,7 +24,7 @@ filename=$(echo $conn_name | cut -c 1-6).conf
 echo "$line" | jq -r 'to_entries | .[] | if .key == "info" then .value[] | to_entries | .[] | if .key == "entry" then "\"info\":\"entry\":\"value\":\(.value.value | @json)" else "\"info\":\"\(.key)\":\(.value | @json)" end else "\"\(.key)\":\(.value | @json)" end' | sed 's/^/# /' > $WG_DIR/$filename
 cat <<EOF >> $WG_DIR/$filename
 [Interface]
-Address = <insert_your_ip_address_here>
+Address = <insert_your_ip_address_here> 
 PrivateKey = <insert_your_private_key_here>
 DNS = 1.1.1.1, 8.8.8.8
 [Peer]
