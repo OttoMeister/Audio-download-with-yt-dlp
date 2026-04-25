@@ -39,7 +39,7 @@ done
 ```shell
 sudo cp ~/Downloads/wireguard/*.conf /etc/wireguard
 sudo bash -c 'chown root:root /etc/wireguard/*.conf'
-sudo bash -c 'chmod 600 /etc/wireguard/*.conf'
+sudo bash -c 'chmod 0644 /etc/wireguard/*.conf'
 ```
 ---
 ## 4. Verify
