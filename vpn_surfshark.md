@@ -38,6 +38,7 @@ done
 ## 3. Deploy to System
 ```shell
 sudo cp ~/Downloads/wireguard/*.conf /etc/wireguard
+sudo chmod 0755 /etc/wireguard/
 sudo bash -c 'chown root:root /etc/wireguard/*.conf'
 sudo bash -c 'chmod 0644 /etc/wireguard/*.conf'
 ```
