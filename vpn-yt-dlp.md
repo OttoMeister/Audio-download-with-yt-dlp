@@ -1,6 +1,23 @@
 # vpn-yt-dlp
 ---
 ### Routes `yt-dlp` downloads through an isolated WireGuard SOCKS5 proxy via `wireproxy` — leaving all other system traffic untouched und not using root. Supports multiple simultaneous connections; pairs well with `gnu parallel`.
+
+---
+## Prepare wireproxy
+
+```bash
+curl -sL https://api.github.com/repos/whyvl/wireproxy/releases/latest \
+  | grep browser_download_url | grep linux_amd64 | cut -d'"' -f4
+```
+if ok, ownoad and install it.
+```bash
+wget -O /tmp/wireproxy.tar.gz \
+  $(curl -sL https://api.github.com/repos/whyvl/wireproxy/releases/latest \
+    | grep browser_download_url | grep linux_amd64 | cut -d'"' -f4)
+tar -xzf /tmp/wireproxy.tar.gz -C ~/.local/bin/ wireproxy
+chmod +x ~/.local/bin/wireproxy
+~/.local/bin/wireproxy --version
+```
 ---
 ## Install
 ```bash
