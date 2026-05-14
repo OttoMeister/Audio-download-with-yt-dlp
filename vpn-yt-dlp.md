@@ -9,7 +9,7 @@
 curl -sL https://api.github.com/repos/whyvl/wireproxy/releases/latest \
   | grep browser_download_url | grep linux_amd64 | cut -d'"' -f4
 ```
-if ok, ownoad and install it.
+if ok, downoad and install it.
 ```bash
 wget -O /tmp/wireproxy.tar.gz \
   $(curl -sL https://api.github.com/repos/whyvl/wireproxy/releases/latest \
