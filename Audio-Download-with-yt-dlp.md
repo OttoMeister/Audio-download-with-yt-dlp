@@ -93,7 +93,7 @@ du -sh ~/Downloads/CarPlaylist # filesize together
 ## 9. Manual Cleanup
 - Remove folders with unwanted music
 - Shorten directory names
-- Copy to MP3 stick - use "rsync --progress -rt ~/Downloads/CarPlaylist /run/media/$USER/0403-0201"
+- Copy to MP3 stick - use "rsync --progress -r ~/Downloads/CarPlaylist /run/media/$USER/0403-0201"
 - Delete from disk
 
 ---
