@@ -6,13 +6,13 @@
 ## Prepare wireproxy
 
 ```bash
-curl -sL https://api.github.com/repos/whyvl/wireproxy/releases/latest \
+curl -sL https://api.github.com/repos/windtf/wireproxy/releases/latest \
   | grep browser_download_url | grep linux_amd64 | cut -d'"' -f4
 ```
 if ok, downoad and install it.
 ```bash
 wget -O /tmp/wireproxy.tar.gz \
-  $(curl -sL https://api.github.com/repos/whyvl/wireproxy/releases/latest \
+  $(curl -sL https://api.github.com/repos/windtf/wireproxy/releases/latest \
     | grep browser_download_url | grep linux_amd64 | cut -d'"' -f4)
 tar -xzf /tmp/wireproxy.tar.gz -C ~/.local/bin/ wireproxy
 chmod +x ~/.local/bin/wireproxy
