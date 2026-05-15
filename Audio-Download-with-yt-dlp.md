@@ -55,6 +55,7 @@ parallel --ungroup --max-procs 16
 Cleans filenames, removes junk files, resizes cover art, strips unwanted metadata tags.
 ```shell
 detox -vr ~/Downloads/CarPlaylist
+find ~/Downloads/CarPlaylist -type f -print0 | parallel -0 'export LC_ALL=C; f={}; dir=$(dirname "$f"); base=$(basename "$f"); clean=$(printf "%s\n" "$base" | sed -e "s/[^a-zA-Z0-9_.-]/_/g" -e "s/__*/_/g"); [ "$base" != "$clean" ] && mv -vn "$f" "$dir/$clean"'
 find ~/Downloads/CarPlaylist -type f ! -name "*.mp3" -exec rm {} \;
 find ~/Downloads/CarPlaylist -mindepth 1 -depth -type d -exec sh -c   'if [ $(find "$0" -type f | wc -l) -lt 10 ]; then rm -r "$0"; fi' {} \;
 find ~/Downloads/CarPlaylist -type f -exec sh -c "echo \"{}\" | grep -qP '[\x{0100}-\x{FFFF}]'" \; -exec rm {} \;
