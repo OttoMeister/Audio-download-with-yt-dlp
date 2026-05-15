@@ -28,9 +28,9 @@ cp vpn-yt-dlp ~/.local/bin/ && chmod a+x ~/.local/bin/vpn-yt-dlp
 ```bash
 #!/bin/bash
 set -e;W=/etc/wireguard;B(){ xargs -n1 basename -s .conf|tr '\n' ' ';};B2(){ xargs -n1 basename -s .conf;}
-T="";WP="";LH=0
-cleanup(){ [[ -n "$WP" ]]&&{ kill -9 "$WP" 2>/dev/null;wait "$WP" 2>/dev/null;};[[ -n "$T" ]]&&rm -f "$T"
-[[ $LH -eq 1 ]]&&exec 9>&-;}
+T="";WP="";LH=0;WL=""
+cleanup(){ [[ -n "$WP" ]]&&{ kill -9 "$WP" 2>/dev/null;wait "$WP" 2>/dev/null||true;};[[ -n "$T" ]]&&rm -f "$T";[[ -n "$WL" ]]&&rm -f "$WL"
+[[ $LH -eq 1 ]]&&{ exec 9>&-;[[ -n "$V" ]]&&rm -f "/tmp/vpn_lock_$V"; } }
 trap cleanup EXIT INT TERM HUP
 if [[ $# -lt 2 ]];then echo "Usage: $0 <mode>; rand: all"
 for r in eu:EU ap:AP am:AM us:AM ea:EA;do case ${r%:*} in
@@ -58,12 +58,13 @@ G(){ grep -m1 "^$1" <<<"$C"|cut -d= -f2-|xargs;}
 PK=$(G PrivateKey);AD=$(G Address);PB=$(G PublicKey);EP=$(G Endpoint)
 [[ -z $PK||-z $AD||-z $PB||-z $EP ]]&&{ echo "Err: config">&2;exit 1;}
 IP=$(getent hosts "${EP%:*}"|awk '{print $1;exit}');[[ -z $IP ]]&&{ echo "Err: DNS">&2;exit 1;}
-T=$(mktemp);printf '[Interface]\nPrivateKey=%s\nAddress=%s\nDNS=1.1.1.1\nMTU=1280\n'\
+T=$(mktemp);WL=$(mktemp)
+printf '[Interface]\nPrivateKey=%s\nAddress=%s\nDNS=1.1.1.1\nMTU=1280\n'\
 '[Peer]\nPublicKey=%s\nEndpoint=%s:%s\nAllowedIPs=0.0.0.0/0\n'\
 '[Socks5]\nBindAddress=127.0.0.1:%s\n' "$PK" "$AD" "$PB" "$IP" "${EP##*:}" "$P">"$T"
-$HOME/.local/bin/wireproxy -c "$T" 2>&1 | grep -E "(bind|listen|error|Error|SOCKS|port)" &WP=$!
+echo "Wait...">&2;$HOME/.local/bin/wireproxy -c "$T" >"$WL" 2>&1 &WP=$!
 OK=0;for i in $(seq 1 30);do
-kill -0 "$WP" 2>/dev/null||{ echo "Err: wireproxy died">&2;exit 1;}
+kill -0 "$WP" 2>/dev/null||{ echo "Err: wireproxy died">&2;cat "$WL">&2;exit 1;}
 curl -x "socks5h://127.0.0.1:$P" -sI -m3 https://1.1.1.1>/dev/null 2>&1&&{ OK=1;break;}
 sleep 1;done
 [[ $OK -eq 0 ]]&&{ echo "VPN Fail">&2;exit 1;}
