@@ -1,10 +1,7 @@
 # vpn-yt-dlp
----
 Routes `yt-dlp` downloads through an isolated WireGuard SOCKS5 proxy via `wireproxy` — leaving all other system traffic untouched und not using root. Supports multiple simultaneous connections; pairs well with `gnu parallel`.
-
 ---
 ## Prepare wireproxy
-
 ```bash
 curl -sL https://api.github.com/repos/windtf/wireproxy/releases/latest \
   | grep browser_download_url | grep linux_amd64 | cut -d'"' -f4
@@ -23,8 +20,8 @@ chmod +x ~/.local/bin/wireproxy
 ```bash
 cp vpn-yt-dlp ~/.local/bin/ && chmod a+x ~/.local/bin/vpn-yt-dlp
 ```
-## The bash script:
 ---
+## The bash script:
 ```bash
 #!/bin/bash
 set -e;W=/etc/wireguard;B(){ xargs -n1 basename -s .conf|tr '\n' ' ';};B2(){ xargs -n1 basename -s .conf;}
@@ -70,22 +67,18 @@ sleep 1;done
 [[ $OK -eq 0 ]]&&{ echo "VPN Fail">&2;exit 1;}
 ALL_PROXY="socks5h://127.0.0.1:$P" $HOME/.local/bin/yt-dlp "$@"
 ```
+---
 ## Usage
-
 ```bash
 vpn-yt-dlp <vpn|mode> [yt-dlp args...]
 ```
-
 | Mode | Description |
 |---|---|
 | `rand` | Random config from all available |
 | `rand-eu` `rand-ap` `rand-am` `rand-us` `rand-ea` | Random from that region |
 | `us-slc` | Specific named config |
-
 All standard `yt-dlp` flags pass through unchanged.
-
 ---
-
 ## Examples
 
 ```bash
@@ -94,15 +87,10 @@ vpn-yt-dlp rand https://www.youtube.com/watch?v=_Es1NbQXDtE
 # Specific server
 vpn-yt-dlp us-slc https://www.youtube.com/watch?v=_Es1NbQXDtE
 ```
-
 ---
-
 ## Batch Download (Parallel)
-
 **1. Build download list**
-
 Search YouTube for playlists, then expand each to individual track commands:
-
 ```bash
 echo "salsa 2025" | \
 parallel --ungroup --silent 'yt-dlp --playlist-end 10 --flat-playlist --simulate --match-filter "id~=^PL" --print id "https://www.youtube.com/results?search_query={= s/ /+/g =}&sp=EgIQAw=="' | \
@@ -111,19 +99,14 @@ grep -vE "Deleted video|Private video" | sed -r ':a; s/^(.{11}.*)[^a-zA-Z0-9 .§
 parallel --ungroup --silent --colsep § -- 'echo nice ionice -c 3 vpn-yt-dlp rand-am --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata --restrict-filename {1} -o "$HOME/Downloads/CarPlaylist/{2}/{3}.mp3"' >1.tmp
 > do1.sh
 ```
-
 **2. Run — 16 parallel workers, shuffled across all regions**
 
 ```bash
 cat do1.sh | shuf | parallel --max-procs 16 --ungroup --silent
 ```
-
 ---
-
 ## VPN Status Check
-
 Tests every config against a sample video and reports which servers are blocked:
-
 ```bash
 #!/bin/bash
 VID="_Es1NbQXDtE"; D="/etc/wireguard"; WP="$HOME/.local/bin/wireproxy"; YT="$HOME/.local/bin/yt-dlp"
@@ -161,11 +144,7 @@ de-fra          BLOCKED         Germany              Bot-Check
 nl-ams          ERROR           Netherlands          Other Error
 sg-sin          CRASHED         Singapore            Proxy Fail
 ```
-
 Exit states: `WORKING` · `BLOCKED` (bot-check) · `ERROR` (other) · `CRASHED` (proxy failed to start)
-
-
-
 ---
 ## License
 [![WTFPL](http://www.wtfpl.net/wp-content/uploads/2012/12/wtfpl-badge-4.png)](http://www.wtfpl.net/)
