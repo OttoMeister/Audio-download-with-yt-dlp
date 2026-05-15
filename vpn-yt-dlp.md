@@ -145,7 +145,6 @@ de-fra          BLOCKED         Germany              Bot-Check
 nl-ams          ERROR           Netherlands          Other Error
 sg-sin          CRASHED         Singapore            Proxy Fail
 ```
-Exit states: `WORKING` · `BLOCKED` (bot-check) · `ERROR` (other) · `CRASHED` (proxy failed to start)
 ---
 ## License
 [![WTFPL](http://www.wtfpl.net/wp-content/uploads/2012/12/wtfpl-badge-4.png)](http://www.wtfpl.net/)
