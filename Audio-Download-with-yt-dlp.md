@@ -3,7 +3,7 @@
 ---
 ## 1. Install Tools
 ```shell
-sudo apt install parallel normalize-audio mp3gain mp3info loudgain mp3check detox fdupes eyed3 exiftool imagemagick id3v2 unzip ionice
+sudo apt install parallel normalize-audio mp3gain mp3info loudgain mp3check detox fdupes eyed3 exiftool imagemagick id3v2 unzip ionice rsznc
 # mkdir -p ~/.local/bin && echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
 wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O ~/.local/bin/yt-dlp
 wget https://github.com/denoland/deno/releases/latest/download/deno-x86_64-unknown-linux-gnu.zip -qO- | funzip >~/.local/bin/deno
@@ -93,7 +93,7 @@ du -sh ~/Downloads/CarPlaylist # filesize together
 ## 9. Manual Cleanup
 - Remove folders with unwanted music
 - Shorten directory names
-- Copy to MP3 stick - i use somthing like this: "rsync --progress -rt ~/Downloads/CarPlaylist /run/media/$USER/0403-0201"
+- Copy to MP3 stick - use "rsync --progress -rt ~/Downloads/CarPlaylist /run/media/$USER/0403-0201"
 - Delete from disk
 
 ---
