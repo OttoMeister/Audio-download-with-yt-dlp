@@ -1,6 +1,6 @@
 # vpn-yt-dlp
 ---
-### Routes `yt-dlp` downloads through an isolated WireGuard SOCKS5 proxy via `wireproxy` — leaving all other system traffic untouched und not using root. Supports multiple simultaneous connections; pairs well with `gnu parallel`.
+Routes `yt-dlp` downloads through an isolated WireGuard SOCKS5 proxy via `wireproxy` — leaving all other system traffic untouched und not using root. Supports multiple simultaneous connections; pairs well with `gnu parallel`.
 
 ---
 ## Prepare wireproxy
@@ -29,7 +29,7 @@ cp vpn-yt-dlp ~/.local/bin/ && chmod a+x ~/.local/bin/vpn-yt-dlp
 #!/bin/bash
 set -e;W=/etc/wireguard;B(){ xargs -n1 basename -s .conf|tr '\n' ' ';};B2(){ xargs -n1 basename -s .conf;}
 T="";WP="";LH=0
-cleanup(){ [[ -n "$WP" ]]&&{ kill "$WP" 2>/dev/null;wait "$WP" 2>/dev/null;};[[ -n "$T" ]]&&rm -f "$T"
+cleanup(){ [[ -n "$WP" ]]&&{ kill -9 "$WP" 2>/dev/null;wait "$WP" 2>/dev/null;};[[ -n "$T" ]]&&rm -f "$T"
 [[ $LH -eq 1 ]]&&exec 9>&-;}
 trap cleanup EXIT INT TERM HUP
 if [[ $# -lt 2 ]];then echo "Usage: $0 <mode>; rand: all"
@@ -61,7 +61,8 @@ IP=$(getent hosts "${EP%:*}"|awk '{print $1;exit}');[[ -z $IP ]]&&{ echo "Err: D
 T=$(mktemp);printf '[Interface]\nPrivateKey=%s\nAddress=%s\nDNS=1.1.1.1\nMTU=1280\n'\
 '[Peer]\nPublicKey=%s\nEndpoint=%s:%s\nAllowedIPs=0.0.0.0/0\n'\
 '[Socks5]\nBindAddress=127.0.0.1:%s\n' "$PK" "$AD" "$PB" "$IP" "${EP##*:}" "$P">"$T"
-echo "Wait...">&2;$HOME/.local/bin/wireproxy -c "$T" >/dev/null 2>&1 &WP=$!
+echo "Wait...">&2;
+$HOME/.local/bin/wireproxy -c "$T" 2>&1 | grep -E "(bind|listen|error|Error|SOCKS|port)" &WP=$!
 OK=0;for i in $(seq 1 30);do
 kill -0 "$WP" 2>/dev/null||{ echo "Err: wireproxy died">&2;exit 1;}
 curl -x "socks5h://127.0.0.1:$P" -sI -m3 https://1.1.1.1>/dev/null 2>&1&&{ OK=1;break;}
