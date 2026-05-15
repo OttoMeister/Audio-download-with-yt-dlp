@@ -61,7 +61,6 @@ IP=$(getent hosts "${EP%:*}"|awk '{print $1;exit}');[[ -z $IP ]]&&{ echo "Err: D
 T=$(mktemp);printf '[Interface]\nPrivateKey=%s\nAddress=%s\nDNS=1.1.1.1\nMTU=1280\n'\
 '[Peer]\nPublicKey=%s\nEndpoint=%s:%s\nAllowedIPs=0.0.0.0/0\n'\
 '[Socks5]\nBindAddress=127.0.0.1:%s\n' "$PK" "$AD" "$PB" "$IP" "${EP##*:}" "$P">"$T"
-echo "Wait...">&2;
 $HOME/.local/bin/wireproxy -c "$T" 2>&1 | grep -E "(bind|listen|error|Error|SOCKS|port)" &WP=$!
 OK=0;for i in $(seq 1 30);do
 kill -0 "$WP" 2>/dev/null||{ echo "Err: wireproxy died">&2;exit 1;}
