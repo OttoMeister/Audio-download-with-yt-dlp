@@ -95,7 +95,7 @@ xargs -0 -I {} sh -c 'ffprobe -v quiet -show_format "$1" | grep -qi "encoded_by=
 parallel --null --linebuffer -- nice ffmpeg-normalize {} \
   --verbose --target-level -14 --loudness-range-target 11 --true-peak -1.0 --dynamic \
   --audio-codec libmp3lame --audio-bitrate 128k --sample-rate 44100 --extension mp3 \
-  --extra-output-options "-codec:v copy -metadata encoded_by=ffmpeg-normalize" \
+  --extra-output-options '"-codec:v copy -metadata encoded_by=ffmpeg-normalize"' \
   --force --output {}
 ```
 ## 9. Info & Stats
