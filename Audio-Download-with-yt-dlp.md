@@ -81,7 +81,7 @@ All files will be overwritten. Already normalized files (tagged encoded_by=ffmpe
 ```shell
 find ~/Downloads/CarPlaylist -type f -iname "*.mp3" -print0 | \
 xargs -0 -I {} sh -c 'ffprobe -v quiet -show_format "$1" | grep -qi "encoded_by=ffmpeg-normalize" || printf "%s\0" "$1"' _ {} | \
-parallel --null --linebuffer -- nice ffmpeg-normalize {} --verbose  \
+parallel --null --linebuffer -- nice ffmpeg-normalize {} --verbose \
   --target-level -14 --loudness-range-target 11 --true-peak -1.0 --dynamic \
   --audio-codec libmp3lame --audio-bitrate 128k --sample-rate 44100 --extension mp3 \
   --extra-output-options '"-codec:v copy -metadata encoded_by=ffmpeg-normalize"' \
