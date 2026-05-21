@@ -71,7 +71,7 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel 'eyeD3 {} --remove
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel id3v2 -s {}
 ```
 ---
-## 7. Volume Normalization
+## 7. Volume Normalization without reencode
 Use one only (do not mix):
 ```shell
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice parallel --eta --max-procs 20 loudgain -q -s e {}
@@ -82,7 +82,23 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | nice parallel --eta --max-p
 | `loudgain -q -s e` | Writes ReplayGain tags only | Recommended, audio untouched |
 | `mp3gain -r` | Modifies audio data (lossless) | Better for older hardware |
 ---
-## 8. Info & Stats
+## 8. Volume Normalization with reencode 
+Install a user
+```shell
+pip3 install ffmpeg-normalize --break-system-packages
+ffmpeg-normalize --version # v1.37.7
+```
+All files will be overwritten. Already normalized files (tagged encoded_by=ffmpeg-normalize) are skipped.
+```shell
+find /home/boss/Downloads/CarPlaylist -type f -iname "*.mp3" -print0 | \
+xargs -0 -I {} sh -c 'ffprobe -v quiet -show_format "$1" | grep -qi "encoded_by=ffmpeg-normalize" || printf "%s\0" "$1"' _ {} | \
+parallel --null --linebuffer -- nice ffmpeg-normalize {} \
+  --verbose --target-level -14 --loudness-range-target 11 --true-peak -1.0 --dynamic \
+  --audio-codec libmp3lame --audio-bitrate 128k --sample-rate 44100 --extension mp3 \
+  --extra-output-options "-codec:v copy -metadata encoded_by=ffmpeg-normalize" \
+  --force --output {}
+```
+## 9. Info & Stats
 ```shell
 tree -d ~/Downloads/CarPlaylist # show tree
 find ~/Downloads/CarPlaylist -type f -name "*.mp3"| wc -l | tr '\n' ' ' && echo mp3 files # counts the files
@@ -90,7 +106,7 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" -exec mp3info -p "%S\n" {} + 
 du -sh ~/Downloads/CarPlaylist # filesize together
 ```
 ---
-## 9. Manual Cleanup
+## 10. Manual Cleanup
 - Remove folders with unwanted music
 - Shorten directory names
 - Copy to MP3 stick - use "rsync --progress -r ~/Downloads/CarPlaylist /run/media/$USER/0403-0201"
