@@ -40,18 +40,7 @@ parallel --ungroup --silent --colsep § -- 'echo nice ionice -c 3 yt-dlp --extra
 parallel --ungroup --max-procs 16
 ```
 ---
-## 5. Download — With Loudness Normalization (slow)
-Applies `loudnorm` via ffmpeg post-processor:
-```shell
-echo "salsa 2025" | \
-parallel --ungroup --silent -- 'yt-dlp --playlist-end 20 --flat-playlist --simulate --match-filter "id~=^PL" --print id "https://www.youtube.com/results?search_query={= s/ /+/g =}&sp=EgIQAw=="' | \
-parallel --ungroup --silent -- 'yt-dlp --ignore-errors --no-warnings --flat-playlist --print "%(id)s§%(playlist)s§%(title)s" "https://www.youtube.com/playlist?list={}"' | \
-grep -vE "Deleted video|Private video" | sed -r ':a; s/^(.{11}.*)[^a-zA-Z0-9 .§_äöüÄÖÜßáéíóúÁÉÍÓÚñÑ-]/\1/; s/^(.{11}.*) /\1_/; s/^(.{11}.*)__+/\1_/; ta' | \
-parallel --ungroup --silent --colsep §  -- 'echo nice ionice -c 3 yt-dlp --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata --postprocessor-args \047ExtractAudio+ffmpeg:-filter:a loudnorm=I=-14:TP=-1.5:LRA=11\047 {1} -o "$HOME/Downloads/CarPlaylist/{2}/{3}.mp3"' | \
-parallel --ungroup --max-procs 16
-```
----
-## 6. Automatic Cleanup
+## 5. Automatic Cleanup
 Cleans filenames, removes junk files, resizes cover art, strips unwanted metadata tags.
 ```shell
 detox -vr ~/Downloads/CarPlaylist
@@ -71,7 +60,7 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel 'eyeD3 {} --remove
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel id3v2 -s {}
 ```
 ---
-## 7. Volume Normalization without reencode
+## 6. Volume Normalization without reencode
 Use one only (do not mix):
 ```shell
 find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel --eta --max-procs 20 nice loudgain -q -s e {}
@@ -82,7 +71,7 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel --eta --max-procs 
 | `loudgain -q -s e` | Writes ReplayGain tags only | Recommended, audio untouched |
 | `mp3gain -r` | Modifies audio data (lossless) | Better for older hardware |
 ---
-## 8. Volume Normalization with reencode 
+## 7. Volume Normalization with reencode (slow)
 Install as user:
 ```shell
 pip3 install ffmpeg-normalize --break-system-packages
@@ -98,7 +87,7 @@ parallel --null --linebuffer -- nice ffmpeg-normalize {} \
   --extra-output-options '"-codec:v copy -metadata encoded_by=ffmpeg-normalize"' \
   --force --output {}
 ```
-## 9. Info & Stats
+## 8. Info & Stats
 ```shell
 tree -d ~/Downloads/CarPlaylist # show tree
 find ~/Downloads/CarPlaylist -type f -name "*.mp3"| wc -l | tr '\n' ' ' && echo mp3 files # counts the files
@@ -106,7 +95,7 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" -exec mp3info -p "%S\n" {} + 
 du -sh ~/Downloads/CarPlaylist # filesize together
 ```
 ---
-## 10. Manual Cleanup
+## 9. Manual Cleanup
 - Remove folders with unwanted music
 - Shorten directory names
 - Copy to MP3 stick - use "rsync --progress -r ~/Downloads/CarPlaylist /run/media/$USER/0403-0201"
