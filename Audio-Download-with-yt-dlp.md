@@ -74,7 +74,7 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel --eta --max-procs 
 ## 7. Two-pass dynamic normalization with reencode (slow)
 Install as user:
 ```shell
-pip3 install ffmpeg-normalize --break-system-packages
+pip3 install --user ffmpeg-normalize --break-system-packages
 ffmpeg-normalize --version # v1.37.7
 ```
 All files will be overwritten. Already normalized files (tagged encoded_by=ffmpeg-normalize) are skipped.
