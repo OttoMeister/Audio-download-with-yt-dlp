@@ -71,7 +71,7 @@ find ~/Downloads/CarPlaylist -type f -name "*.mp3" | parallel --eta --max-procs 
 | `loudgain -q -s e` | Writes ReplayGain tags only | Recommended, audio untouched |
 | `mp3gain -r` | Modifies audio data (lossless) | Better for older hardware |
 ---
-## 7. Volume Normalization with reencode (slow)
+## 7. Two-pass dynamic normalization with reencode (slow)
 Install as user:
 ```shell
 pip3 install ffmpeg-normalize --break-system-packages
