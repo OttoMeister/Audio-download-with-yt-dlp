@@ -36,7 +36,7 @@ echo "salsa 2025" | \
 parallel --ungroup --silent -- 'yt-dlp --playlist-end 20 --flat-playlist --simulate --match-filter "id~=^PL" --print id "https://www.youtube.com/results?search_query={= s/ /+/g =}&sp=EgIQAw=="' | \
 parallel --ungroup --silent -- 'yt-dlp --ignore-errors --no-warnings --flat-playlist --print "%(id)s§%(playlist)s§%(title)s" "https://www.youtube.com/playlist?list={}"' | \
 grep -vE "Deleted video|Private video" | sed -r ':a; s/^(.{11}.*)[^a-zA-Z0-9 .§_äöüÄÖÜßáéíóúÁÉÍÓÚñÑ-]/\1/; s/^(.{11}.*) /\1_/; s/^(.{11}.*)__+/\1_/; ta' | \
-parallel --ungroup --silent --colsep § -- 'echo nice ionice -c 3 yt-dlp --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata  {1} -o "$HOME/Downloads/CarPlaylist/{2}/{3}.mp3"' | \
+parallel --ungroup --silent --colsep § -- 'echo nice ionice -c 3 yt-dlp --extract-audio --audio-format mp3 --audio-quality 5 --embed-thumbnail --embed-metadata {1} -o "$HOME/Downloads/CarPlaylist/{2}/{3}.mp3"' | \
 parallel --ungroup --max-procs 16
 ```
 ---
@@ -46,7 +46,7 @@ Cleans filenames, removes junk files, resizes cover art, strips unwanted metadat
 detox -vr ~/Downloads/CarPlaylist
 find ~/Downloads/CarPlaylist -type f -print0 | parallel -0 'export LC_ALL=C; f={}; dir=$(dirname "$f"); base=$(basename "$f"); clean=$(printf "%s\n" "$base" | sed -e "s/[^a-zA-Z0-9_.-]/_/g" -e "s/__*/_/g"); [ "$base" != "$clean" ] && mv -vn "$f" "$dir/$clean"'
 find ~/Downloads/CarPlaylist -type f ! -name "*.mp3" -exec rm {} \;
-find ~/Downloads/CarPlaylist -mindepth 1 -depth -type d -exec sh -c   'if [ $(find "$0" -type f | wc -l) -lt 10 ]; then rm -r "$0"; fi' {} \;
+find ~/Downloads/CarPlaylist -mindepth 1 -depth -type d -exec sh -c 'if [ $(find "$0" -type f | wc -l) -lt 10 ]; then rm -r "$0"; fi' {} \;
 find ~/Downloads/CarPlaylist -type f -exec sh -c "echo \"{}\" | grep -qP '[\x{0100}-\x{FFFF}]'" \; -exec rm {} \;
 find ~/Downloads/CarPlaylist -type f -regextype posix-egrep -regex ".*/[^/]{1,10}$" -delete
 find ~/Downloads/CarPlaylist -type f -regextype posix-egrep -regex ".*/[^/]{100}[^/]+$" -delete
