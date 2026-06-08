@@ -37,6 +37,7 @@ parallel --ungroup --silent --colsep § -- 'echo nice ionice -c 3 yt-dlp --extra
 # Step 5: Execute all download commands with 16 parallel processes
 parallel --ungroup --max-procs 16
 ```
----
+
 ## License
-[![WTFPL](http://www.wtfpl.net/wp-content/uploads/2012/12/wtfpl-badge-4.png)](http://www.wtfpl.net/)
+This project is released under the WTFPL LICENSE.
+<a href="http://www.wtfpl.net/"><img src="http://www.wtfpl.net/wp-content/uploads/2012/12/wtfpl-badge-4.png" width="80" height="15" alt="WTFPL" /></a>
